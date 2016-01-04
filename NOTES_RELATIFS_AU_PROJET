@@ -1,0 +1,5 @@
+Pour povuoir exécuter le make du projet de l'éditeur de lien, il faut exécuter la commande :
+source ~/.envarm/setenvarm.sh
+
+Si ça ne marche pas, vérifier que la variable d'environnement ci dessous se trouve bien dans le fichier .envarm/setenvarm.sch :
+setenv PATH ${PATH}:${ARM_ENVDIR}:${ARMTOOLS_DIR}/bin 
