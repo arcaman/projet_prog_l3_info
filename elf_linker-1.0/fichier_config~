@@ -1,0 +1,2 @@
+avant de lancer le projet : executer la commande :
+setenv PATH ${PATH}:${ARM_ENVDIR}:${ARMTOOLS_DIR}/bin 
