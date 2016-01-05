@@ -8,14 +8,14 @@
 #ifndef READ_HEADER_H
 #define	READ_HEADER_H
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<elf.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <elf.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-void read_header(Elf32_Shdr * section_headers);
+#include <inttypes.h>
 
-
+void read_header(char * filename, size_t size);
 
 #endif	/* READ_HEADER_H */
 

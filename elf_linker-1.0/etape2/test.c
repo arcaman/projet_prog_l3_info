@@ -24,6 +24,7 @@ off_t fsize(const char *filename) {
 int main(int argc,char** argv){
     char *f=argv[1];
     size_t s=fsize(f);
+    printf("%s %i\n",f,(int)s);
     read_header(f,s);
     return(EXIT_SUCCESS);
 }
