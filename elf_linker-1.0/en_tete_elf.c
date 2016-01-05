@@ -4,7 +4,6 @@
 #define MODE_BIG_ENDIAN 2
 
 Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
-    int k;
     Elf32_Ehdr enTeteHeader;
 
     FILE* fichierAnalyse = fopen(nameFile, "r");
