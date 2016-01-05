@@ -77,7 +77,21 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
     printf("\tVersion ABI : %u\n", enTeteHeader.e_ident[8]);
     
     printf("Type : %u\n", enTeteHeader.e_type);
-    printf("Machine : %u\n", enTeteHeader.e_machine);
+    
+    switch(enTeteHeader.e_machine) {
+        case 0 : printf("Machine : No specific instruction set\n"); break;
+        case 2 : printf("Machine : SPARC\n"); break;
+        case 3 : printf("Machine : x86\n"); break;
+        case 8 : printf("Machine : MIPS\n"); break;
+        case 20 : printf("Machine : PowerPC\n"); break;
+        case 40 : printf("Machine : ARM\n"); break;
+        case 42 : printf("Machine : SuperH\n"); break;
+        case 50 : printf("Machine : IA-64\n"); break;
+        case 62 : printf("Machine : x86-64\n"); break;
+        case 183 : printf("Machine : AArch64\n"); break;
+        default : printf("Machine : unknown\n");
+    }
+    
     printf("version : 0x%x\n", enTeteHeader.e_version);
     printf("Adresse point entree : 0x%x\n", enTeteHeader.e_entry);
     printf("Debut des en-tetes de programme : %x (octets dans le fichier)\n", enTeteHeader.e_phoff);
