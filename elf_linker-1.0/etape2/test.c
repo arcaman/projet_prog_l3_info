@@ -5,12 +5,12 @@
 * Created on 5 janvier 2016, 08:25
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<elf.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <elf.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-#include"read_header.h"
+#include "read_header.h"
 #include <sys/stat.h>
 
 off_t fsize(const char *filename) {
