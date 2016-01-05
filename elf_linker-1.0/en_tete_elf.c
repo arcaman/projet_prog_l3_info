@@ -5,7 +5,7 @@
 
 #define MODE_BIG_ENDIAN 2
 
-int main(int argc, char *argv[]) {
+Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
 
     int i = 1;
     int j;
@@ -13,13 +13,7 @@ int main(int argc, char *argv[]) {
 
     Elf32_Ehdr enTeteHeader;
 
-
-    if (argc < 2) {
-        printf("Renseignez au moins 1 fichier !\n");
-        return 0;
-    }
-
-    FILE* fichierAnalyse = fopen(argv[1], "r");
+    FILE* fichierAnalyse = fopen(nameFile, "r");
 
     for (k = 0; k < EI_NIDENT; k++) {
         fread(&enTeteHeader.e_ident[k], sizeof (unsigned char), 1, fichierAnalyse);
@@ -57,10 +51,18 @@ int main(int argc, char *argv[]) {
         enTeteHeader.e_shnum = __bswap_16(enTeteHeader.e_shnum);
         enTeteHeader.e_shstrndx = __bswap_16(enTeteHeader.e_shstrndx);
     }
-    
+
+    fclose(fichierAnalyse);
+
+    return enTeteHeader;
+}
+
+void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
+
+    int k;
     printf("Magique : ");
     for (k = 0; k < EI_NIDENT; k++) {
-        printf("%x ", enTeteHeader.e_ident[k]);
+        printf("%02x ", enTeteHeader.e_ident[k]);
     }
     printf("\n");
 
@@ -78,7 +80,17 @@ int main(int argc, char *argv[]) {
     printf("Nombre des en-tetes de section : %u\n", enTeteHeader.e_shnum);
     printf("Table d indexes des chaines d'en-tete de section : %u\n", enTeteHeader.e_shstrndx);
 
-    fclose(fichierAnalyse);
+}
 
+int main(int argc, char *argv[]) {
+
+    if (argc < 2) {
+        printf("Renseignez au moins 1 fichier !\n");
+        return 0;
+    }
+    
+    Elf32_Ehdr enTeteHeader = createObjectEnteteELF(argv[1]);
+    afficheTableEnTete(enTeteHeader);
+    
     return 0;
 }
