@@ -5,6 +5,9 @@
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index){
     Elf32_Shdr shdr;
     FILE* fichierAnalyse = fopen(nameFile, "r");
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
+    fseek(fichierAnalyse, elfHdr.e_shoff + index * sizeof(Elf32_Shdr), SEEK_SET);
+    
     fread(&shdr.sh_name, sizeof (Elf32_Word), 1, fichierAnalyse);
     fread(&shdr.sh_type, sizeof (Elf32_Word), 1, fichierAnalyse);
     fread(&shdr.sh_flags, sizeof (Elf32_Word), 1, fichierAnalyse);
@@ -16,6 +19,19 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index){
     fread(&shdr.sh_addralign, sizeof (Elf32_Word), 1, fichierAnalyse);
     fread(&shdr.sh_entsize, sizeof (Elf32_Word), 1, fichierAnalyse);
     
+    if (elfHdr.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+        shdr.sh_name = __bswap_32(shdr.sh_name);
+        shdr.sh_type = __bswap_32(shdr.sh_type);
+        shdr.sh_flags = __bswap_32(shdr.sh_flags);
+        shdr.sh_addr = __bswap_32(shdr.sh_addr);
+        shdr.sh_offset = __bswap_32(shdr.sh_offset);
+        shdr.sh_size = __bswap_32(shdr.sh_size);
+        shdr.sh_link = __bswap_32(shdr.sh_link);
+        shdr.sh_info = __bswap_32(shdr.sh_info);
+        shdr.sh_addralign = __bswap_32(shdr.sh_addralign);
+        shdr.sh_entsize = __bswap_32(shdr.sh_entsize);
+    }
+    
     fclose(fichierAnalyse);
     return shdr;
 }
@@ -25,30 +41,25 @@ void read_section_header(char * filename, size_t size){
     char* SectNames = NULL;
     Elf32_Ehdr elfHdr;
     Elf32_Shdr sectHdr;
+    Elf32_Shdr strTab;
     uint32_t idx;
     ElfFile = fopen(filename, "r");
     // read ELF header, first thing in the file
     elfHdr = createObjectEnteteELF(filename);
     printf("nb sections : %i\n",elfHdr.e_shnum); 
+    strTab = createObjectSectionheader(filename, elfHdr.shstrndx);
     
-    
-    
-    // read section name string table
-    // first, read its header.
-    fseek(ElfFile, elfHdr.e_shoff + elfHdr.e_shstrndx * sizeof(Elf32_Shdr), SEEK_SET);
-    fread(&sectHdr, 1, sizeof(Elf32_Shdr), ElfFile);
-    // next, read the section, string data
-    //printf("sh_size = %llu\n", (long long unsigned int)sectHdr.sh_size);
-    SectNames = malloc(sectHdr.sh_size);
-    fseek(ElfFile, sectHdr.sh_offset, SEEK_SET);
-    fread(SectNames, 1, sectHdr.sh_size, ElfFile);
-
     
     // read all section headers
     for (idx = 0; idx < elfHdr.e_shnum; idx++){
-        fseek(ElfFile, elfHdr.e_shoff + idx * sizeof(Elf32_Shdr), SEEK_SET);
-        fread(&sectHdr, 1, sizeof(Elf32_Shdr), ElfFile);
-        //printf("section numero %i : \n",idx);
+        
+        sectHdr = createObjectSectionheader(filename, idx);
+        printf("section numero %i : \n",idx);
+        printf("type : %u\n",sectHdr.sh_type);
+        
+        
+   
+        
     }
 }
 
