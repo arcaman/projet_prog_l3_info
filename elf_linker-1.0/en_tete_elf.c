@@ -6,9 +6,6 @@
 #define MODE_BIG_ENDIAN 2
 
 Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
-
-    int i = 1;
-    int j;
     int k;
 
     Elf32_Ehdr enTeteHeader;
