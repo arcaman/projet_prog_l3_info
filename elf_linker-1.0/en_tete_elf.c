@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <byteswap.h>
 
+
 #define MODE_BIG_ENDIAN 2
 
 Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
