@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <byteswap.h>
 
+
 #define MODE_BIG_ENDIAN 2
 
 Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
@@ -11,26 +12,7 @@ Elf32_Ehdr createObjectEnteteELF(char* nameFile) {
 
     FILE* fichierAnalyse = fopen(nameFile, "r");
 
-    for (k = 0; k < EI_NIDENT; k++) {
-        fread(&enTeteHeader.e_ident[k], sizeof (unsigned char), 1, fichierAnalyse);
-    }
-
-    fread(&enTeteHeader.e_type, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_machine, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_version, sizeof (Elf32_Word), 1, fichierAnalyse);
-
-    fread(&enTeteHeader.e_entry, sizeof (Elf32_Addr), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_phoff, sizeof (Elf32_Off), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_shoff, sizeof (Elf32_Off), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_flags, sizeof (Elf32_Word), 1, fichierAnalyse);
-
-    fread(&enTeteHeader.e_ehsize, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_phentsize, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_phnum, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_shentsize, sizeof (Elf32_Half), 1, fichierAnalyse);
-
-    fread(&enTeteHeader.e_shnum, sizeof (Elf32_Half), 1, fichierAnalyse);
-    fread(&enTeteHeader.e_shstrndx, sizeof (Elf32_Half), 1, fichierAnalyse);
+    fread(&enTeteHeader, sizeof(Elf32_Ehdr), 1, fichierAnalyse);
 
     if (enTeteHeader.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
         enTeteHeader.e_type = __bswap_16(enTeteHeader.e_type);
@@ -62,6 +44,38 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
     }
     printf("\n");
 
+    
+    
+    switch(enTeteHeader.e_ident[4]) {
+        case 1 : printf("\tClasse : 32-bit\n"); break;	
+        case 2 : printf("\tClasse : 64-bit\n"); break;
+        default : printf("\tClasse : unknown\n");
+    }
+    
+    switch(enTeteHeader.e_ident[5]) {
+        case 1 : printf("\tDonnees : little endian\n"); break;	
+        case 2 : printf("\tDonnees : big endian\n"); break;
+        default : printf("\tDonnees : unknown\n");
+    }
+    
+    printf("\tVersion : %u\n", enTeteHeader.e_ident[6]);
+    
+    switch(enTeteHeader.e_ident[7]) {
+        case 0 : printf("\tOS/ABI : System V\n"); break;
+        case 1 : printf("\tOS/ABI : HP-UX\n"); break;
+        case 2 : printf("\tOS/ABI : NetBSD\n"); break;
+        case 3 : printf("\tOS/ABI : Linux\n"); break;
+        case 6 : printf("\tOS/ABI : Solaris\n"); break;
+        case 7 : printf("\tOS/ABI : AIX\n"); break;
+        case 8 : printf("\tOS/ABI : Irix\n"); break;
+        case 9 : printf("\tOS/ABI : FreeBSD\n"); break;
+        case 12 : printf("\tOS/ABI : OpenBSD\n"); break;
+        case 13 : printf("\tOS/ABI : OpenVMS\n"); break;	
+        default : printf("\tOS/ABI : unknown\n");
+    }
+    
+    printf("\tVersion ABI : %u\n", enTeteHeader.e_ident[8]);
+    
     printf("Type : %u\n", enTeteHeader.e_type);
     printf("Machine : %u\n", enTeteHeader.e_machine);
     printf("version : 0x%x\n", enTeteHeader.e_version);
