@@ -37,29 +37,48 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index){
 }
 
 void read_section_header(char * filename, size_t size){
-    FILE* ElfFile = NULL;
-    char* SectNames = NULL;
     Elf32_Ehdr elfHdr;
     Elf32_Shdr sectHdr;
     Elf32_Shdr strTab;
     uint32_t idx;
-    ElfFile = fopen(filename, "r");
     // read ELF header, first thing in the file
     elfHdr = createObjectEnteteELF(filename);
     printf("nb sections : %i\n",elfHdr.e_shnum); 
-    strTab = createObjectSectionheader(filename, elfHdr.shstrndx);
-    
+    strTab = createObjectSectionheader(filename, elfHdr.e_shstrndx);
+    FILE* fichier = fopen(filename, "r");
+    fseek(fichier,strTab.sh_offset, SEEK_SET);
+    char * str = malloc(strTab.sh_size);
+    for(idx=0;idx<strTab.sh_size;idx++){
+        str[idx]=fgetc(fichier);
+    }
     
     // read all section headers
     for (idx = 0; idx < elfHdr.e_shnum; idx++){
         
         sectHdr = createObjectSectionheader(filename, idx);
         printf("section numero %i : \n",idx);
-        printf("type : %u\n",sectHdr.sh_type);
+        printf("type : %u\n",sectHdr.sh_type); //a remplacer par leur équivalent
+        
+        printf("name : ");
+        int i=sectHdr.sh_name;
+        while(str[i]!='\0'){
+            printf("%c",str[i]);
+            i++;
+        }
+        printf("\n");
+        
+        printf("size : %u\n",sectHdr.sh_size);
+        printf("offset : %u\n",sectHdr.sh_offset);
+        printf("address : %u\n",sectHdr.sh_addr);
+        printf("flags : %u\n",sectHdr.sh_flags);
+        if(sectHdr.sh_entsize!=0){
+            printf("taille des entrees prefixee a %u bits \n",sectHdr.sh_entsize);
+        }
         
         
-   
+        printf("\n");
         
     }
+    fclose(fichier);
 }
 
