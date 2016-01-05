@@ -21,7 +21,7 @@ off_t fsize(const char *filename) {
 
     return -1; 
 }
-int main(int argc,char** argv){
+int main(int argc,char* argv[]){
     char *f=argv[1];
     size_t s=fsize(f);
     printf("%s %i\n",f,(int)s);

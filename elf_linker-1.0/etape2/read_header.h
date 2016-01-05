@@ -15,6 +15,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <inttypes.h>
+//#include "../en_tete_elf.c"
 
 void read_section_header(char * filename, size_t size);
 Elf32_Ehdr read_elf_header(char *filename);
