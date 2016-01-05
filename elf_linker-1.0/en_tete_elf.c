@@ -1,7 +1,4 @@
-#include <elf.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <byteswap.h>
+#include "en_tete_elf.h"
 
 
 #define MODE_BIG_ENDIAN 2
@@ -104,17 +101,4 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
     printf("Nombre des en-tetes de section : %u\n", enTeteHeader.e_shnum);
     printf("Table d indexes des chaines d'en-tete de section : %u\n", enTeteHeader.e_shstrndx);
 
-}
-
-int main(int argc, char *argv[]) {
-
-    if (argc < 2) {
-        printf("Renseignez au moins 1 fichier !\n");
-        return 0;
-    }
-    
-    Elf32_Ehdr enTeteHeader = createObjectEnteteELF(argv[1]);
-    afficheTableEnTete(enTeteHeader);
-    
-    return 0;
 }
