@@ -36,9 +36,18 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     return shdr;
 }
 
+
+void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum){
+    int i;
+    for (i=0;i<shnum;i++){
+        tab[i] = createObjectSectionheader(nameFile, i);
+    }
+}
+
+
 void read_section_header(char * filename) {
     Elf32_Ehdr elfHdr;
-    Elf32_Shdr sectHdr;
+//    Elf32_Shdr sectHdr;
     Elf32_Shdr strTab;
     uint32_t idx;
     // read ELF header, first thing in the file
@@ -54,28 +63,32 @@ void read_section_header(char * filename) {
 
     // read all section headers
 
+    Elf32_Shdr* allObject = malloc(elfHdr.e_shnum*sizeof(Elf32_Shdr));;
+    createAllObjectSectionHeader(filename, allObject, elfHdr.e_shnum);
+            
+    
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
 
-        sectHdr = createObjectSectionheader(filename, idx);
+//        sectHdr = createObjectSectionheader(filename, idx);
         printf("SECTION numero %i : \n", idx);
         printf("name : ");
-        int i = sectHdr.sh_name;
+        int i = allObject[idx].sh_name;
         while (str[i] != '\0') {
             printf("%c", str[i]);
             i++;
         }
         printf("\n");
-        printf("type : %u\n", sectHdr.sh_type); //a remplacer par leur équivalent
-        printf("size : %u offset : %u\n", sectHdr.sh_size, sectHdr.sh_offset);
-        printf("flags : %x\n", sectHdr.sh_flags);
-        if (sectHdr.sh_addr != 0) {
-            printf("address : %u\n", sectHdr.sh_addr);
+        printf("type : %u\n", allObject[idx].sh_type); //a remplacer par leur équivalent
+        printf("size : %u offset : %u\n", allObject[idx].sh_size, allObject[idx].sh_offset);
+        printf("flags : %x\n", allObject[idx].sh_flags);
+        if (allObject[idx].sh_addr != 0) {
+            printf("address : %u\n", allObject[idx].sh_addr);
 
         } else {
             printf("pas d'adresse memoire predefinie pour le stockage de cette section\n");
         }
-        if (sectHdr.sh_entsize != 0) {
-            printf("taille des entrees prefixee a %u bits \n", sectHdr.sh_entsize);
+        if (allObject[idx].sh_entsize != 0) {
+            printf("taille des entrees prefixee a %u bits \n", allObject[idx].sh_entsize);
         }
 
 
