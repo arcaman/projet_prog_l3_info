@@ -2,6 +2,16 @@
 #include "../en_tete_elf.c"
 #define MODE_BIG_ENDIAN 2
 
+#define SHF_WRITE	(1 << 0)	/* Writable data during execution */
+#define SHF_ALLOC	(1 << 1)	/* Occupies memory during execution */
+#define SHF_EXECINSTR	(1 << 2)	/* Executable machine instructions */
+#define SHF_MERGE	(1 << 4)	/* Data in this section can be merged */
+#define SHF_STRINGS	(1 << 5)	/* Contains null terminated character strings */
+#define SHF_INFO_LINK	(1 << 6)	/* sh_info holds section header table index */
+#define SHF_LINK_ORDER  (1 << 7)	/* Preserve section ordering when linking */
+#define SHF_OS_NONCONFORMING (1 << 8)	/* OS specifci processing required */
+
+
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     Elf32_Shdr shdr;
     FILE* fichierAnalyse = fopen(nameFile, "r");
@@ -41,9 +51,12 @@ void read_section_header(char * filename) {
     Elf32_Shdr sectHdr;
     Elf32_Shdr strTab;
     uint32_t idx;
+    
     // read ELF header, first thing in the file
     elfHdr = createObjectEnteteELF(filename);
     printf("nb sections : %i\n", elfHdr.e_shnum);
+    
+    //get and store the string table
     strTab = createObjectSectionheader(filename, elfHdr.e_shstrndx);
     FILE* fichier = fopen(filename, "r");
     fseek(fichier, strTab.sh_offset, SEEK_SET);
@@ -67,7 +80,16 @@ void read_section_header(char * filename) {
         printf("\n");
         printf("type : %u\n", sectHdr.sh_type); //a remplacer par leur équivalent
         printf("size : %u offset : %u\n", sectHdr.sh_size, sectHdr.sh_offset);
-        printf("flags : %x\n", sectHdr.sh_flags);
+        printf("flags : ");
+        char * truc = "WAXMSILO";
+        int save = sectHdr.sh_flags;
+        for(i=0;i<8;i++){
+            if(((sectHdr.sh_flags >> i) & 1 )== 1){
+                printf("%c",truc[i]);
+            }
+            sectHdr.sh_flags = save;
+        }
+        printf("\n");
         if (sectHdr.sh_addr != 0) {
             printf("address : %u\n", sectHdr.sh_addr);
 
