@@ -7,12 +7,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "symbole_table.h"
 
 /*
  * 
  */
 int main(int argc, char** argv) {
-
+    afficher_table_symb(argv[1]);
     return (EXIT_SUCCESS);
 }
 
