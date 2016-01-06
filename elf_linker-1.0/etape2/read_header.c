@@ -56,9 +56,7 @@ void read_section_header(char * filename, size_t size){
     for (idx = 0; idx < elfHdr.e_shnum; idx++){
         
         sectHdr = createObjectSectionheader(filename, idx);
-        printf("section numero %i : \n",idx);
-        printf("type : %u\n",sectHdr.sh_type); //a remplacer par leur équivalent
-        
+        printf("SECTION numero %i : \n",idx);
         printf("name : ");
         int i=sectHdr.sh_name;
         while(str[i]!='\0'){
@@ -66,11 +64,10 @@ void read_section_header(char * filename, size_t size){
             i++;
         }
         printf("\n");
-        
-        printf("size : %u\n",sectHdr.sh_size);
-        printf("offset : %u\n",sectHdr.sh_offset);
+        printf("type : %u\n",sectHdr.sh_type); //a remplacer par leur équivalent
+        printf("size : %u offset : %u\n",sectHdr.sh_size,sectHdr.sh_offset);
         printf("address : %u\n",sectHdr.sh_addr);
-        printf("flags : %u\n",sectHdr.sh_flags);
+        printf("flags : %x\n",sectHdr.sh_flags);
         if(sectHdr.sh_entsize!=0){
             printf("taille des entrees prefixee a %u bits \n",sectHdr.sh_entsize);
         }
