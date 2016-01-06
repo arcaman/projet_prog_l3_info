@@ -2,16 +2,6 @@
 #include "../en_tete_elf.c"
 #define MODE_BIG_ENDIAN 2
 
-#define SHF_WRITE	(1 << 0)	/* Writable data during execution */
-#define SHF_ALLOC	(1 << 1)	/* Occupies memory during execution */
-#define SHF_EXECINSTR	(1 << 2)	/* Executable machine instructions */
-#define SHF_MERGE	(1 << 4)	/* Data in this section can be merged */
-#define SHF_STRINGS	(1 << 5)	/* Contains null terminated character strings */
-#define SHF_INFO_LINK	(1 << 6)	/* sh_info holds section header table index */
-#define SHF_LINK_ORDER  (1 << 7)	/* Preserve section ordering when linking */
-#define SHF_OS_NONCONFORMING (1 << 8)	/* OS specifci processing required */
-
-
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     Elf32_Shdr shdr;
     FILE* fichierAnalyse = fopen(nameFile, "r");
