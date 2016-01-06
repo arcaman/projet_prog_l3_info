@@ -36,25 +36,39 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     return shdr;
 }
 
+void read_section_content(FILE * f, int offset, int size) {
+    fseek(f, offset, SEEK_SET);
+    int i, j = 0;
+    unsigned char k;
+    for (i = size; i > 0; i--) {
+        fread(&k, 1, 1, f);
+        printf("%02x ", k);
+        j++;
+        if (j == 8) {
+            printf(" ");
+        } else if (j == 16) {
+            printf("\n");
+            j = 0;
+        }
+    }
+}
 
-void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum){
+void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum) {
     int i;
-    for (i=0;i<shnum;i++){
+    for (i = 0; i < shnum; i++) {
         tab[i] = createObjectSectionheader(nameFile, i);
     }
 }
 
-
 void read_section_header(char * filename) {
     Elf32_Ehdr elfHdr;
-//    Elf32_Shdr sectHdr;
     Elf32_Shdr strTab;
     uint32_t idx;
-    
+
     // read ELF header, first thing in the file
     elfHdr = createObjectEnteteELF(filename);
     printf("nb sections : %i\n", elfHdr.e_shnum);
-    
+
     //get and store the string table
     strTab = createObjectSectionheader(filename, elfHdr.e_shstrndx);
     FILE* fichier = fopen(filename, "r");
@@ -66,10 +80,11 @@ void read_section_header(char * filename) {
 
     // read all section headers
 
-    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum*sizeof(Elf32_Shdr));;
+    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum * sizeof (Elf32_Shdr));
+    ;
     createAllObjectSectionHeader(filename, allSectHdr, elfHdr.e_shnum);
-            
-    
+
+
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
         printf("SECTION numero %i : \n", idx);
         printf("name : ");
@@ -84,9 +99,9 @@ void read_section_header(char * filename) {
         printf("flags : ");
         char * truc = "WAXMSILO";
         int save = allSectHdr[idx].sh_flags;
-        for(i=0;i<8;i++){
-            if(((allSectHdr[idx].sh_flags >> i) & 1 )== 1){
-                printf("%c",truc[i]);
+        for (i = 0; i < 8; i++) {
+            if (((allSectHdr[idx].sh_flags >> i) & 1) == 1) {
+                printf("%c", truc[i]);
             }
             allSectHdr[idx].sh_flags = save;
         }
@@ -101,11 +116,13 @@ void read_section_header(char * filename) {
         if (allSectHdr[idx].sh_entsize != 0) {
             printf("taille des entrees prefixee a %u bits \n", allSectHdr[idx].sh_entsize);
         }
-
+        printf("contenu : \n");
+        read_section_content(fichier, allSectHdr[idx].sh_offset, allSectHdr[idx].sh_size);
 
         printf("\n");
 
     }
     fclose(fichier);
 }
+
 
