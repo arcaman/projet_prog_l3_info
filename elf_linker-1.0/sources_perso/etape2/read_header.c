@@ -118,7 +118,7 @@ void read_section_header(char * filename) {
         }
         printf("contenu : \n");
         read_section_content(fichier, allSectHdr[idx].sh_offset, allSectHdr[idx].sh_size);
-
+        printf("\n");
         printf("\n");
 
     }
