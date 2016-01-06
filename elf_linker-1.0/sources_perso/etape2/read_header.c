@@ -36,7 +36,7 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     return shdr;
 }
 
-void read_section_header(char * filename, size_t size) {
+void read_section_header(char * filename) {
     Elf32_Ehdr elfHdr;
     Elf32_Shdr sectHdr;
     Elf32_Shdr strTab;
@@ -67,8 +67,13 @@ void read_section_header(char * filename, size_t size) {
         printf("\n");
         printf("type : %u\n", sectHdr.sh_type); //a remplacer par leur équivalent
         printf("size : %u offset : %u\n", sectHdr.sh_size, sectHdr.sh_offset);
-        printf("address : %u\n", sectHdr.sh_addr);
         printf("flags : %x\n", sectHdr.sh_flags);
+        if (sectHdr.sh_addr != 0) {
+            printf("address : %u\n", sectHdr.sh_addr);
+
+        } else {
+            printf("pas d'adresse memoire predefinie pour le stockage de cette section\n");
+        }
         if (sectHdr.sh_entsize != 0) {
             printf("taille des entrees prefixee a %u bits \n", sectHdr.sh_entsize);
         }

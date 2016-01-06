@@ -13,18 +13,9 @@
 #include "read_header.h"
 #include <sys/stat.h>
 
-off_t fsize(const char *filename) {
-    struct stat st; 
-
-    if (stat(filename, &st) == 0)
-        return st.st_size;
-
-    return -1; 
-}
 int main(int argc,char* argv[]){
     char *f=argv[1];
-    size_t s=fsize(f);
-    printf("%s %i\n",f,(int)s);
-    read_section_header(f,s);
+    printf("%s\n",f);
+    read_section_header(f);
     return(EXIT_SUCCESS);
 }

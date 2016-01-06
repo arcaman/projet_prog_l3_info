@@ -17,7 +17,7 @@
 #include <inttypes.h>
 
 
-void read_section_header(char * filename, size_t size);
+void read_section_header(char * filename);
 Elf32_Ehdr read_elf_header(char *filename);
 
 #endif	/* READ_HEADER_H */
