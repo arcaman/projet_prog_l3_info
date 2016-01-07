@@ -5,8 +5,8 @@
  * Created on 5 janvier 2016, 09:03
  */
 
-#ifndef READ_HEADER_H
-#define	READ_HEADER_H
+#ifndef DISPLAY_CONTENT_H
+#define	DISPLAY_CONTENT_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,10 +16,10 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
+int getIndexSectionByNameOrIndex(char* nameFile, char* indiceOrNameSection, int isInt);
 
-void read_section_header(char * filename);
-Elf32_Ehdr read_elf_header(char *filename);
-void read_section_content(FILE f, int offset, int size);
-void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum);
+void createSectionContent(char* nameFile, int indiceSectionHeader, char* tab);
+
+
 #endif	/* READ_HEADER_H */
 
