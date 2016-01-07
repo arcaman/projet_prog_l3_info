@@ -18,8 +18,9 @@
 
 int getIndexSectionByNameOrIndex(char* nameFile, char* indiceOrNameSection, int isInt);
 
-void createSectionContent(char* nameFile, int indiceSectionHeader, char* tab);
+unsigned char* createSectionContent(char* nameFile, int indiceSectionHeader);
 
+void displaySectionContent(unsigned char* tableauOctetsSection, char* nameFile, int indiceSectionHeader);
 
 #endif	/* READ_HEADER_H */
 

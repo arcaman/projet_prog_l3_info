@@ -47,70 +47,37 @@ int getIndexSectionByNameOrIndex(char* nameFile, char *indiceOrNameSection, int 
     return -1;
 }
 
-void createSectionContent(char* nameFile, int indiceSectionHeader, char* tab) {
+unsigned char* createSectionContent(char* nameFile, int indiceSectionHeader) {
     Elf32_Shdr shdr = createObjectSectionheader(nameFile, indiceSectionHeader);
     FILE* fichierAnalyse = fopen(nameFile, "r");
 
     fseek(fichierAnalyse, shdr.sh_offset, SEEK_SET);
 
-    int i, j = 0;
-    uint16_t k;
+    unsigned char* tabOctets = malloc(sizeof (unsigned char)*shdr.sh_size);
+
+    int i;
+    unsigned char valeurOctet;
     for (i = 0; i < shdr.sh_size; i++) {
-        fread(&k, 1, 1, fichierAnalyse);
-        printf("%x ", k);
-        //decalage de bits pour etre sur de recuperer la bonne valeur
+        fread(&valeurOctet, 1, 1, fichierAnalyse);
+        tabOctets[i] = valeurOctet;
+    }
+    fclose(fichierAnalyse);
+    return tabOctets;
+}
+
+void displaySectionContent(unsigned char* tableauOctetsSection, char* nameFile, int indiceSectionHeader) {
+
+    Elf32_Shdr shdr = createObjectSectionheader(nameFile, indiceSectionHeader);
+    int i, j = 0;
+    for (i = 0; i < shdr.sh_size; i++) {
+        printf("%02x", tableauOctetsSection[i]);
         j++;
-        if (j == 8) {
+        if (j == 4 || j == 8 || j == 12) {
             printf(" ");
         } else if (j == 16) {
             printf("\n");
             j = 0;
         }
     }
-
-
-    
-    //    fseek(f, offset, SEEK_SET);
-    //    int i, j = 0;
-    //    unsigned char k;
-    //    for (i = size; i > 0; i--) {
-    //        fread(&k, 1, 1, f);
-    //        printf("%02x ", k);
-    //        j++;
-    //        if (j == 8) {
-    //            printf(" ");
-    //        } else if (j == 16) {
-    //            printf("\n");
-    //            j = 0;
-    //        }
-    //    }
-
-
-    fclose(fichierAnalyse);
-
+    printf("\n");
 }
-
-//void displaySectionContent(FILE *, int offset, int size) {
-//
-//
-//}
-
-//void displaySectionContent(FILE * f, int offset, int size) {
-//    
-//    
-//    
-//    fseek(f, offset, SEEK_SET);
-//    int i, j = 0;
-//    unsigned char k;
-//    for (i = size; i > 0; i--) {
-//        fread(&k, 1, 1, f);
-//        printf("%02x ", k);
-//        j++;
-//        if (j == 8) {
-//            printf(" ");
-//        } else if (j == 16) {
-//            printf("\n");
-//            j = 0;
-//        }
-//    }
-//}

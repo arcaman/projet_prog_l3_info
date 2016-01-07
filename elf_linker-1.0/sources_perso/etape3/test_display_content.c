@@ -17,21 +17,18 @@ int main(int argc, char* argv[]) {
     char* nameFile = argv[1];
     char* indiceOrNameSection = argv[2];
     int isInt = atoi(argv[3]);
-    
+
     int idSection = getIndexSectionByNameOrIndex(nameFile, indiceOrNameSection, isInt);
-    
+
     printf("valeur retour : %d\n", idSection);
-    char* tab = "je suis une chaine";
-    
-//    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum * sizeof (Elf32_Shdr));
-//    createAllObjectSectionHeader(filename, allSectHdr, elfHdr.e_shnum);
-    
-    createSectionContent(nameFile, idSection, tab);
-    
-    
+
+    unsigned char* tableauOctetsSection = createSectionContent(nameFile, idSection);
+
+    displaySectionContent(tableauOctetsSection, nameFile, idSection);
+
     return (0);
 
 
-    
+
 
 }
