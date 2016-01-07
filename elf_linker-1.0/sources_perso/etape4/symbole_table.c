@@ -7,7 +7,7 @@
 
 
 
-Elf32_Sym createObjectSymbolHeader(char* nameFile, int index, Elf32_Shdr shdr) {
+Elf32_Sym createObjectSymbol(char* nameFile, int index, Elf32_Shdr shdr) {
     Elf32_Sym sym;
     FILE* fichierAnalyse = fopen(nameFile, "r");
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
@@ -33,6 +33,13 @@ Elf32_Sym createObjectSymbolHeader(char* nameFile, int index, Elf32_Shdr shdr) {
     return sym;
 }
 
+void createAllObjectSymbol(char* nameFile, Elf32_Sym* tab, Elf32_Shdr symtable) {
+    int i;
+    int k = symtable.sh_size/sizeof(Elf32_Sym);
+    for (i = 0; i < k; i++) {
+        tab[i] = createObjectSymbol(nameFile, i, symtable);
+    }
+}
 
 void afficher_table_symb(char * filename){
     Elf32_Shdr symbtab,strsymbtab;
@@ -56,22 +63,25 @@ void afficher_table_symb(char * filename){
     fclose(fichier);
     
     
+    
     int k = symbtab.sh_size/sizeof(Elf32_Sym);
+    Elf32_Sym* allSym = malloc(k * sizeof (Elf32_Sym));
+    createAllObjectSymbol(filename,allSym,symbtab);
+    
     for(i=0;i<k;i++){
-        Elf32_Sym symbole = createObjectSymbolHeader(filename, i, symbtab);
         printf("symbole numero %i :\n",i);
         printf("nom : ");
-        int i = symbole.st_name;
-        while (str[i] != '\0') {
-            printf("%c", str[i]);
-            i++;
+        int j = allSym[i].st_name;
+        while (str[j] != '\0') {
+            printf("%c", str[j]);
+            j++;
         }
         printf("\n");
-        printf("valeur : %i\n",symbole.st_value);
-        printf("taille : %i\n",symbole.st_size);
-        printf("symbole utilise dans la section %i\n",symbole.st_shndx);
+        printf("valeur : %i\n",allSym[i].st_value);
+        printf("taille : %i\n",allSym[i].st_size);
+        printf("symbole utilise dans la section %i\n",allSym[i].st_shndx);
         printf("attachement : ");
-        switch(ELF32_ST_BIND(symbole.st_info)){
+        switch(ELF32_ST_BIND(allSym[i].st_info)){
             case 0:
                 printf("local\n"); 
                 break;
@@ -92,7 +102,7 @@ void afficher_table_symb(char * filename){
                 
         }
         printf("type : ");
-        switch(ELF32_ST_TYPE(symbole.st_info)){ 
+        switch(ELF32_ST_TYPE(allSym[i].st_info)){ 
             case 0:
                 printf("non precise\n"); 
                 break;
