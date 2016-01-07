@@ -7,7 +7,7 @@
 CC=gcc
 CFLAGS=-Wall -Werror
 
-test : test.o read_header.o
+test_display_header : test_display_header.o read_header.o
 	$(CC) -o $@ $^
 
 %.o : %.c %.h
