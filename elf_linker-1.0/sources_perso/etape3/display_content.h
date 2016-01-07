@@ -19,7 +19,7 @@
 
 void read_section_header(char * filename);
 Elf32_Ehdr read_elf_header(char *filename);
-//void read_section_content(FILE f, int offset, int size);
+void read_section_content(FILE f, int offset, int size);
 void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum);
 #endif	/* READ_HEADER_H */
 
