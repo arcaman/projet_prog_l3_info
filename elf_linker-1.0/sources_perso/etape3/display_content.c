@@ -23,8 +23,7 @@ int getIndexSectionByNameOrIndex(char* nameFile, char *indiceOrNameSection, int 
         str[idx] = fgetc(fichier);
     }
     fclose(fichier);
-    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum * sizeof (Elf32_Shdr));
-    createAllObjectSectionHeader(nameFile, allSectHdr, elfHdr.e_shnum);
+    Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
         int i = allSectHdr[idx].sh_name;
         int n = 0;
