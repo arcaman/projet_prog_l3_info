@@ -20,8 +20,6 @@ int main(int argc, char* argv[]) {
 
     int idSection = getIndexSectionByNameOrIndex(nameFile, indiceOrNameSection, isInt);
 
-    printf("valeur retour : %d\n", idSection);
-
     unsigned char* tableauOctetsSection = createSectionContent(nameFile, idSection);
 
     displaySectionContent(tableauOctetsSection, nameFile, idSection);
