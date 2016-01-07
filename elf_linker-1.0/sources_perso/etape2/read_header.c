@@ -36,53 +36,36 @@ Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     return shdr;
 }
 
-//void read_section_content(FILE * f, int offset, int size) {
-//    fseek(f, offset, SEEK_SET);
-//    int i, j = 0;
-//    unsigned char k;
-//    for (i = size; i > 0; i--) {
-//        fread(&k, 1, 1, f);
-//        printf("%02x ", k);
-//        j++;
-//        if (j == 8) {
-//            printf(" ");
-//        } else if (j == 16) {
-//            printf("\n");
-//            j = 0;
-//        }
-//    }
-//}
+Elf32_Shdr* createAllObjectSectionHeader(char* nameFile) {
 
-void createAllObjectSectionHeader(char* nameFile, Elf32_Shdr* tab, int shnum) {
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
+    int nbSections = elfHdr.e_shnum;
     int i;
-    for (i = 0; i < shnum; i++) {
-        tab[i] = createObjectSectionheader(nameFile, i);
+    Elf32_Shdr* allSectHdr = malloc(sizeof (Elf32_Shdr) * nbSections);
+    for (i = 0; i < nbSections; i++) {
+        allSectHdr[i] = createObjectSectionheader(nameFile, i);
     }
+    return allSectHdr;
 }
 
-void read_section_header(char * filename) {
-    Elf32_Ehdr elfHdr;
-    Elf32_Shdr strTab;
-    uint32_t idx;
+void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr) {
 
+    uint32_t idx;
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     // read ELF header, first thing in the file
-    elfHdr = createObjectEnteteELF(filename);
     printf("nb sections : %i\n", elfHdr.e_shnum);
 
     //get and store the string table
-    strTab = createObjectSectionheader(filename, elfHdr.e_shstrndx);
-    FILE* fichier = fopen(filename, "r");
-    fseek(fichier, strTab.sh_offset, SEEK_SET);
-    char * str = malloc(strTab.sh_size);
-    for (idx = 0; idx < strTab.sh_size; idx++) {
+    Elf32_Shdr stringTable = createObjectSectionheader(nameFile, elfHdr.e_shstrndx);
+    FILE* fichier = fopen(nameFile, "r");
+    fseek(fichier, stringTable.sh_offset, SEEK_SET);
+    char* str = malloc(stringTable.sh_size);
+    for (idx = 0; idx < stringTable.sh_size; idx++) {
         str[idx] = fgetc(fichier);
     }
+    fclose(fichier);
 
     // read all section headers
-
-    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum * sizeof (Elf32_Shdr));
-    createAllObjectSectionHeader(filename, allSectHdr, elfHdr.e_shnum);
-
 
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
         printf("SECTION numero %i : \n", idx);
@@ -96,11 +79,11 @@ void read_section_header(char * filename) {
         printf("type : %u\n", allSectHdr[idx].sh_type); //a remplacer par leur équivalent
         printf("size : %u offset : %u\n", allSectHdr[idx].sh_size, allSectHdr[idx].sh_offset);
         printf("flags : ");
-        char * truc = "WAXMSILO";
+        char *flags = "WAXMSILO";
         int save = allSectHdr[idx].sh_flags;
         for (i = 0; i < 8; i++) {
             if (((allSectHdr[idx].sh_flags >> i) & 1) == 1) {
-                printf("%c", truc[i]);
+                printf("%c", flags[i]);
             }
             allSectHdr[idx].sh_flags = save;
         }
@@ -115,13 +98,10 @@ void read_section_header(char * filename) {
         if (allSectHdr[idx].sh_entsize != 0) {
             printf("taille des entrees prefixee a %u bits \n", allSectHdr[idx].sh_entsize);
         }
-        //printf("contenu : \n");
-//        read_section_content(fichier, allSectHdr[idx].sh_offset, allSectHdr[idx].sh_size);
 
         printf("\n");
 
     }
-    fclose(fichier);
 }
 
 
