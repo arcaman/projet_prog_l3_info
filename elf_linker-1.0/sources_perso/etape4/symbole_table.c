@@ -7,11 +7,6 @@
 
 
 
-
-
-
-
-
 Elf32_Sym createObjectSymbolHeader(char* nameFile, int index, Elf32_Shdr shdr) {
     Elf32_Sym sym;
     FILE* fichierAnalyse = fopen(nameFile, "r");
@@ -75,12 +70,56 @@ void afficher_table_symb(char * filename){
         printf("valeur : %i\n",symbole.st_value);
         printf("taille : %i\n",symbole.st_size);
         printf("symbole utilise dans la section %i\n",symbole.st_shndx);
+        printf("attachement : ");
+        switch(ELF32_ST_BIND(symbole.st_info)){
+            case 0:
+                printf("local\n"); 
+                break;
+            case 1:
+                printf("global\n"); 
+                break;
+            case 2:
+                printf("faible\n"); 
+                break;
+            case 13:
+                printf("reserve au processeur\n"); 
+                break;
+            case 15:
+                printf("reserve au processeur\n"); 
+                break;
+            default:
+                printf("inconnu\n");
+                
+        }
+        printf("type : ");
+        switch(ELF32_ST_TYPE(symbole.st_info)){ 
+            case 0:
+                printf("non precise\n"); 
+                break;
+            case 1:
+                printf("objet\n"); 
+                break;
+            case 2:
+                printf("fonction\n"); 
+                break;
+            case 3:
+                printf("section\n"); 
+                break;
+            case 4:
+                printf("fichier\n"); 
+                break;
+            case 13:
+                printf("reserve au processeur\n"); 
+                break;
+            case 15:
+                printf("reserve au processeur\n"); 
+                break;
+            default:
+                printf("autre type de symbole\n");                
+        }
         
         
-        
-//#define ELF32_ST_BIND(i)    ((i)>>4)
-//#define ELF32_ST_TYPE(i)    ((i)&0xf)
-//#define ELF32_ST_INFO(b,t)  (((b)<<4)+((t)&0xf)) 
+
         printf("\n");
     }
 }
