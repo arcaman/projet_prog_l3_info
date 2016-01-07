@@ -16,7 +16,7 @@
 #include "../en_tete_elf.h"
 
 Elf32_Sym createObjectSymbolHeader(char* nameFile, int index, Elf32_Shdr shdr);
-void afficher_table_symb(char * filename);
+void afficherTableSymbole(char * filename);
 
 #endif	/* SYMBOLE_TABLE_H */
 

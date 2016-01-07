@@ -13,7 +13,7 @@
  * 
  */
 int main(int argc, char** argv) {
-    afficher_table_symb(argv[1]);
+    afficherTableSymbole(argv[1]);
     return (EXIT_SUCCESS);
 }
 
