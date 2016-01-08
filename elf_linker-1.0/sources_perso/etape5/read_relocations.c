@@ -99,20 +99,43 @@ void readRelocations(char * nameFile) {
             l++;
         }
     }
-    affichage_relocations(allSectRel, tab_ind_sect_rel, nb_ent_tot, nb_sect_rel, nameFile);
+    affichage_relocations(allSectRel, tab_ind_sect_rel, nb_sect_rel, nameFile);
     free(allSectRel);
     free(allSectHdr);
     free(tab_ind_sect_rel);
 }
 
-void affichage_relocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_ent_tot, int nb_sect_rel, char* nameFile) {
+void affichage_relocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile) {
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     Elf32_Shdr* allSect = createAllObjectSectionHeader(nameFile);
+    
+    Elf32_Shdr stringTable = createObjectSectionheader(nameFile, elfHdr.e_shstrndx);
+    FILE* fichier = fopen(nameFile, "r");
+    fseek(fichier, stringTable.sh_offset, SEEK_SET);
+    char* str = malloc(stringTable.sh_size);
+    int idx;
+    for (idx = 0; idx < stringTable.sh_size; idx++) {
+        str[idx] = fgetc(fichier);
+    }
+    fclose(fichier);
+    
+    
+    
+    
     int k, n = 0;
     int currentRel = 0;
     for (k = 0; k < nb_sect_rel; k++) {
         int nb_ent_current = allSect[tab_ind_sect_rel[k]].sh_size / allSect[tab_ind_sect_rel[k]].sh_entsize;
         int nextRelSect = currentRel + nb_ent_current;
-        printf("Section de relocalisation %u a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_name, allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
+        printf("Section de relocalisation ");
+        int i = allSect[tab_ind_sect_rel[k]].sh_name;
+        while (str[i] != '\0') {
+            printf("%c", str[i]);
+            i++;
+        }
+        
+        
+        printf(" a l adresse de decalage 0x%x contient %d entrees:\n",allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
         printf("Info\tDecalage\n");
         for (n = currentRel; n < nextRelSect; n++) {
             printf("%08x\t%08x\n", allRel[k][n].r_info, allRel[k][n].r_offset);
