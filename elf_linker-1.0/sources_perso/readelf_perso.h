@@ -16,37 +16,38 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
+typedef struct {
+    Elf32_Rel rel; /* relocation entry */
+    Elf32_Word link; /* link */
+} RelAndLink;
+
 /* ----- ENTETE ELF ----- */
-Elf32_Ehdr createObjectEnteteELF(char* nameFile);
+Elf32_Ehdr createObjectEnteteELF(FILE* fichierAnalyse);
 void afficheTableEnTete(Elf32_Ehdr enTeteHeader);
 
 /* ----- READ HEADER ----- */
-char* getSectionsStringTable(char* nameFile);
-Elf32_Shdr createObjectSectionheader(char* nameFile, int index);
-void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr);
-Elf32_Shdr* createAllObjectSectionHeader(char* nameFile);
+char* getSectionsStringTable(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
+Elf32_Shdr createObjectSectionheader(FILE* fichierAnalyse, int index, Elf32_Ehdr elfHdr);
+void displaySectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr);
+Elf32_Shdr* createAllObjectSectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
 /* ----- DISPLAY CONTENT ----- */
-int getIndexSectionByNameOrIndex(char* nameFile, char* indiceOrNameSection, int isInt);
-unsigned char* createSectionContent(char* nameFile, int indiceSectionHeader);
-void displaySectionContent(unsigned char* tableauOctetsSection, char* nameFile, int indiceSectionHeader);
+int getIndexSectionByNameOrIndex(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, char *indiceOrNameSection, int isInt, Elf32_Shdr* allSectHdr);
+unsigned char* createSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, int indiceSectionHeader);
+void displaySectionContent(unsigned char* tableauOctetsSection, FILE* fichierAnalyse, int indiceSectionHeader, Elf32_Ehdr elfHdr);
 
 /* ----- SYMBOL TABLE ----- */
-Elf32_Sym createObjectSymbolHeader(char* nameFile, int index, Elf32_Shdr shdr);
-void afficherTableSymbole(char * filename);
+Elf32_Sym createObjectSymbol(FILE* fichierAnalyse, int index, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab);
+Elf32_Sym* createAllObjectSymbol(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab);
+void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab, Elf32_Sym * allSymbole);
 
 /* ----- RELOCATIONS TABLE ----- */
-typedef struct
-{
-  Elf32_Rel	rel;		/* relocation entry */
-  Elf32_Word	link;		/* link */
-} RelAndLink;
 
-Elf32_Rel createObjectRelocations(char* nameFile, Elf32_Shdr sect, int index);
-RelAndLink* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect);
-void readRelocations(char * nameFile);
-RelAndLink** createAllRelocations(char * nameFile);
-void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile);
+Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int index, Elf32_Ehdr elfHdr);
+RelAndLink * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
+void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
+RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
+void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
 
 #endif	/* READELF_PERSO_H */

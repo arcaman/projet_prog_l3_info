@@ -14,7 +14,13 @@
  */
 int main(int argc, char** argv) {
     char *nameFile = argv[1];
-    int retry = 1;    
+    int retry = 1;
+
+    FILE* fichierAnalyse = fopen(nameFile, "r");
+    
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
+    Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
+    
     while(retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n",nameFile);
         printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
@@ -25,15 +31,15 @@ int main(int argc, char** argv) {
 
             case 1 : //entete
             {
-                Elf32_Ehdr objet = createObjectEnteteELF(nameFile);   
-                afficheTableEnTete(objet); 
+                
+                afficheTableEnTete(elfHdr); 
             }
                 break;
 
             case 2 : //read header
             {
-                Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
-                displaySectionHeader(nameFile, allSectHdr);
+                //Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
+                displaySectionHeader(fichierAnalyse, elfHdr, allSectHdr);
             }
                 break;
 
@@ -44,19 +50,27 @@ int main(int argc, char** argv) {
                 } else {
                     char* indiceOrNameSection = argv[2];
                     int isInt = atoi(argv[3]);
-                    int idSection = getIndexSectionByNameOrIndex(nameFile, indiceOrNameSection, isInt);
-                    unsigned char* tableauOctetsSection = createSectionContent(nameFile, idSection);
-                    displaySectionContent(tableauOctetsSection, nameFile, idSection);
+                    int idSection = getIndexSectionByNameOrIndex(fichierAnalyse, elfHdr, indiceOrNameSection, isInt, allSectHdr);
+                    unsigned char* tableauOctetsSection = createSectionContent(fichierAnalyse, elfHdr, idSection);
+                    displaySectionContent(tableauOctetsSection, fichierAnalyse, idSection, elfHdr);
                 }
             }           
                 break;
 
             case 4 : //symbol table
-                afficherTableSymbole(nameFile);
+                ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
+                Elf32_Sym* allObjectSymbol;
+                allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
+                afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, allObjectSymbol);
+                //afficherTableSymbole(fichierAnalyse);
                 break;
 
             case 5 : //relocations table
-                readRelocations(nameFile); 
+                ;
+                
+                readRelocations(fichierAnalyse, elfHdr, allSectHdr);
+                
+                
                 break;
                 
             default : //redemande ce qu'il faut afficher si sel a une aurte valeur
@@ -66,6 +80,9 @@ int main(int argc, char** argv) {
             }
         }
     }
+    
+    fclose(fichierAnalyse);
+    
     return (EXIT_SUCCESS);
 }
 
