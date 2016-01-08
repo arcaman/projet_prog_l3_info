@@ -16,16 +16,17 @@ Elf32_Rel createObjectRelocations(char* nameFile, Elf32_Shdr sect, int index) {
     return rel;
 }
 
-Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect) {
+RelAndLink* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect) {
     int i;
-    Elf32_Rel* tab = malloc(nbent * sizeof (Elf32_Rel));
+    RelAndLink* tab = malloc(nbent * sizeof (RelAndLink));
     for (i = 0; i < nbent; i++) {
-        tab[i] = createObjectRelocations(nameFile, sect, i);
+        tab[i].rel = createObjectRelocations(nameFile, sect, i);
+        tab[i].link = sect.sh_link;
     }
     return tab;
 }
 
-Elf32_Rel** createAllRelocations(char * nameFile) {
+RelAndLink** createAllRelocations(char * nameFile) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     int i;
@@ -35,18 +36,12 @@ Elf32_Rel** createAllRelocations(char * nameFile) {
             nb_sect_rel++;
         }
     }
-    /*int nb_ent_tot = 0;
-    for (i = 0; i < elfHdr.e_shnum; i++) {
-        if (allSectHdr[i].sh_type == SHT_REL) {
-            nb_ent_tot += allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
-        }
-    }*/
-    Elf32_Rel* allRelForSec;
-    Elf32_Rel** allSectRel = malloc(nb_sect_rel * sizeof (Elf32_Rel*));
+    RelAndLink* allRelForSec;
+    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
-            int nb_ent = allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
+            int nb_ent = allSectHdr[i].sh_size / sizeof (Elf32_Rel);
             allRelForSec = createAllRelocationBySection(nameFile, nb_ent, allSectHdr[i]);
             allSectRel[l] = allRelForSec;
             l++;
@@ -65,19 +60,13 @@ void readRelocations(char * nameFile) {
             nb_sect_rel++;
         }
     }
-    /*int nb_ent_tot = 0;
-    for (i = 0; i < elfHdr.e_shnum; i++) {
-        if (allSectHdr[i].sh_type == SHT_REL) {
-            nb_ent_tot += allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
-        }
-    }*/
     int* tab_ind_sect_rel = malloc(nb_sect_rel * sizeof (int));
-    Elf32_Rel** allSectRel = malloc(nb_sect_rel * sizeof (Elf32_Rel*));
+    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
             int nb_ent = allSectHdr[i].sh_size / sizeof (Elf32_Rel);
-            Elf32_Rel* allRelForSec = createAllRelocationBySection(nameFile, nb_ent, allSectHdr[i]);
+            RelAndLink* allRelForSec = createAllRelocationBySection(nameFile, nb_ent, allSectHdr[i]);
             allSectRel[l] = allRelForSec;
             tab_ind_sect_rel[l] = i;
             l++;
@@ -89,12 +78,11 @@ void readRelocations(char * nameFile) {
     free(tab_ind_sect_rel);
 }
 
-void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile) {
+void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(nameFile);
 
     char* str = getSectionsStringTable(nameFile);
     int k, n = 0;
-    int currentRel = 0;
     for (k = 0; k < nb_sect_rel; k++) {
         int nb_ent_current = allSect[tab_ind_sect_rel[k]].sh_size / sizeof(Elf32_Rel);
         printf("Section de relocalisation ");
@@ -104,9 +92,9 @@ void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect
             i++;
         }
         printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
-        printf("Decalage\tInfo\n");
+        printf("Decalage\tInfo\t\tType\n");
         for (n = 0; n < nb_ent_current; n++) {
-            printf("%08x\t%08x\n", allRel[k][n].r_offset, allRel[k][n].r_info);
+            printf("%08x\t%08x\t%08x\n", allRel[k][n].rel.r_offset, allRel[k][n].rel.r_info,ELF32_R_TYPE(allRel[k][n].rel.r_info));
         }
         printf("\n");
     }
