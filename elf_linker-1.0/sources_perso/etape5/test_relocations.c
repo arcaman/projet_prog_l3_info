@@ -16,7 +16,7 @@
 int main(int argc,char* argv[]){
     char *f=argv[1];
     printf("%s\n",f);
-    read_relocations(f);
+    readRelocations(f);
     return(EXIT_SUCCESS);
 }
 
