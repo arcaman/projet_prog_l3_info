@@ -16,7 +16,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
-
+char* getSectionsStringTable(char* nameFile);
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index);
 void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr);
 Elf32_Shdr* createAllObjectSectionHeader(char* nameFile);

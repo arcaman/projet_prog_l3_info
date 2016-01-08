@@ -48,6 +48,20 @@ Elf32_Shdr* createAllObjectSectionHeader(char* nameFile) {
     return allSectHdr;
 }
 
+char* getSectionsStringTable(char* nameFile) {
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
+    Elf32_Shdr stringTable = createObjectSectionheader(nameFile, elfHdr.e_shstrndx);
+    FILE* fichier = fopen(nameFile, "r");
+    fseek(fichier, stringTable.sh_offset, SEEK_SET);
+    int idx;
+    char* str = malloc(stringTable.sh_size);
+    for (idx = 0; idx < stringTable.sh_size; idx++) {
+        str[idx] = fgetc(fichier);
+    }
+    fclose(fichier);
+    return str;
+}
+
 void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr) {
 
     uint32_t idx;
