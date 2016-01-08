@@ -69,7 +69,8 @@ void afficherTableSymbole(char * nameFile) {
             strsymbtab = sectiontab[i + 1];
         }
     }
-
+    //NE PAS REMPLACER PAR char* str = getSectionsStringTable(nameFile);
+    //car on ne récupereras pas la bonne table
     FILE* fichier = fopen(nameFile, "r");
     fseek(fichier, strsymbtab.sh_offset, SEEK_SET);
     char * str = malloc(strsymbtab.sh_size);

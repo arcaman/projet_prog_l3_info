@@ -70,14 +70,7 @@ void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr) {
     printf("nb sections : %i\n", elfHdr.e_shnum);
 
     //get and store the string table
-    Elf32_Shdr stringTable = createObjectSectionheader(nameFile, elfHdr.e_shstrndx);
-    FILE* fichier = fopen(nameFile, "r");
-    fseek(fichier, stringTable.sh_offset, SEEK_SET);
-    char* str = malloc(stringTable.sh_size);
-    for (idx = 0; idx < stringTable.sh_size; idx++) {
-        str[idx] = fgetc(fichier);
-    }
-    fclose(fichier);
+    char* str = getSectionsStringTable(nameFile);
 
     // read all section headers
 

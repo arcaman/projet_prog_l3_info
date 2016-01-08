@@ -20,7 +20,7 @@ Elf32_Rel createObjectRelocations(char* nameFile, Elf32_Shdr sect, int index);
 Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect);
 void readRelocations(char * nameFile);
 Elf32_Rel** createAllRelocations(char * nameFile);
-void affichage_relocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile);
+void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile);
 
 #endif	/* READ_RELOCATIONS_H */
 

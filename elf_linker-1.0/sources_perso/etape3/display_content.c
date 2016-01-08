@@ -15,14 +15,7 @@ int getIndexSectionByNameOrIndex(char* nameFile, char *indiceOrNameSection, int 
     }
 
 
-    FILE* fichier = fopen(nameFile, "r");
-    Elf32_Shdr strTab = createObjectSectionheader(nameFile, elfHdr.e_shstrndx);
-    fseek(fichier, strTab.sh_offset, SEEK_SET);
-    char * str = malloc(strTab.sh_size);
-    for (idx = 0; idx < strTab.sh_size; idx++) {
-        str[idx] = fgetc(fichier);
-    }
-    fclose(fichier);
+    char* str = getSectionsStringTable(nameFile);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
         int i = allSectHdr[idx].sh_name;
