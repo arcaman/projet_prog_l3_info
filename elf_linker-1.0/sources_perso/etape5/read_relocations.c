@@ -21,7 +21,6 @@ Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr se
     Elf32_Rel* tab = malloc(nbent * sizeof (Elf32_Rel));
     for (i = 0; i < nbent; i++) {
         tab[i] = createObjectRelocations(nameFile, sect, i);
-        printf("%08x\t%08x\n", tab[i].r_offset, tab[i].r_info);
     }
     return tab;
 }
