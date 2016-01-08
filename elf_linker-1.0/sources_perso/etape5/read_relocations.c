@@ -38,6 +38,37 @@ Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr se
     return tab;
 }
 
+Elf32_Rel** createAllRelocations(char * nameFile) {
+    Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
+    Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
+    int i;
+    int nb_sect_rel = 0;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            nb_sect_rel++;
+        }
+    }
+    int nb_ent_tot = 0;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            nb_ent_tot += allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
+        }
+    }
+    Elf32_Rel* allRelForSec = malloc(nb_ent_tot * sizeof (Elf32_Rel));
+    Elf32_Rel** allSectRel = malloc(nb_sect_rel * sizeof (Elf32_Rel*));
+    int l = 0;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            int nb_ent = allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
+            allRelForSec = createAllRelocationBySection(nameFile, nb_ent, allSectHdr[i]);
+            allSectRel[l] = allRelForSec;
+            l++;
+        }
+    }
+    return allSectRel;
+}
+
+
 void readRelocations(char * nameFile) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
@@ -74,7 +105,6 @@ void readRelocations(char * nameFile) {
     free(tab_ind_sect_rel);
 }
 
-//revoir arg1
 void affichage_relocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_ent_tot, int nb_sect_rel, char* nameFile) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(nameFile);
     int k, n = 0;
