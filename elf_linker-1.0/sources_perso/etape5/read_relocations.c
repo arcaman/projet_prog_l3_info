@@ -27,8 +27,7 @@ void createAllRelocationBySection(char* nameFile, Elf32_Rel* tab, int nbent, Elf
 
 void read_relocations(char * nameFile) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    Elf32_Shdr* allSectHdr = malloc(elfHdr.e_shnum * sizeof (Elf32_Shdr));
-    createAllObjectSectionHeader(nameFile, allSectHdr, elfHdr.e_shnum);
+    Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     int nb_sect_rel = count_reloc_sect(elfHdr, allSectHdr);
     int nb_ent_tot = size_needed_relocations_table(elfHdr, allSectHdr);
     int* tab_ind_sect_rel = malloc(nb_sect_rel * sizeof (int));
@@ -79,7 +78,7 @@ void affichage_relocations(Elf32_Rel* allRel, Elf32_Shdr* allSect, int* tab_ind_
         int nb_ent_current = allSect[tab_ind_sect_rel[k]].sh_size / allSect[tab_ind_sect_rel[k]].sh_entsize;
         int nextRelSect = currentRel + nb_ent_current;
         printf("Section de relocalisation %u a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_name, allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
-        printf("Decalage\tInfo\n");
+        printf("Info\tDecalage\n");
         for (n = currentRel; n < nextRelSect; n++) {
             printf("%08x\t", allRel[n].r_info);
             printf("%08x\n", allRel[n].r_offset);

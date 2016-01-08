@@ -15,9 +15,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <inttypes.h>
-#include "../etape2/read_header.h"
-#include "../en_tete_elf.h"
-
+#include "../etape2/read_header.c"
 
 Elf32_Rel createObjectRelocations(char* nameFile, Elf32_Shdr sect, int index);
 void createAllRelocationBySection(char* nameFile, Elf32_Rel* tab, int shnum, Elf32_Shdr sect, int ind_tab);
