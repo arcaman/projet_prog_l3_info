@@ -10,6 +10,7 @@
 
 #include <elf.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
 #include <sys/mman.h>
@@ -49,7 +50,8 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
 RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
 void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
-Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr, Elf32_Ehdr* elfHdrSansRelocalisations);
+/* ----- EDITION OBJET SANS RELOCALISATION -----*/
+Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, Elf32_Ehdr elf, Elf32_Ehdr* elfApresReloc);
 
 int countNbSectionsNonRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr);
 

@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
             case 6:
                 ;
                 Elf32_Ehdr elfHdrSansRelocalisations = elfHdr;
-                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(elfHdr, allSectHdr, &elfHdrSansRelocalisations);
+                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
+
                 //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
                 displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
 
