@@ -433,7 +433,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
     }
     //NE PAS REMPLACER PAR char* str = getSectionsStringTable(nameFile);
     //car on ne récupereras pas la bonne table
-    
+
     fseek(fichierAnalyse, strsymbtab.sh_offset, SEEK_SET);
     char * str = malloc(strsymbtab.sh_size);
     for (i = 0; i < strsymbtab.sh_size; i++) {
@@ -443,7 +443,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 
 
     int k = symbtab.sh_size / sizeof (Elf32_Sym);
-    
+
     printf("Num\tNom\tVal\tTail\tNdx\tLien\tType\t\tVis\n\n");
 
     for (i = 0; i < k; i++) {
@@ -506,7 +506,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
                 printf("autre type de symbole\t");
         }
 
-        printf("%u",ELF32_ST_VISIBILITY(allSymbole[i].st_info));
+        printf("%u", ELF32_ST_VISIBILITY(allSymbole[i].st_info));
 
         printf("\n");
     }
@@ -631,7 +631,7 @@ Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, El
             //                }
             //            }
             elfApresReloc->e_shnum--;
-            elfApresReloc->e_shstrndx--;  //note : ca fait planter l'affichage dans la 6, mais ca fera marcher normalement une fois le fichier réécrit
+            elfApresReloc->e_shstrndx--; //note : ca fait planter l'affichage dans la 6, mais ca fera marcher normalement une fois le fichier réécrit
         } else {
             shdrApresReloc[k] = shdrcpy[i];
             if (shdrApresReloc[k].sh_link != 0) {
@@ -687,4 +687,40 @@ int countNbSectionsRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* 
         }
     }
     return indiceNbCasesTabRelocalisations;
+}
+
+int* createTableComparaisonSymbolesApresRelocation(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
+    int nbSections = elfHdr.e_shnum;
+    int indiceSuppressionSection = 0;
+    int i;
+    int* tabComparaisonSymboles = malloc(sizeof (int)*nbSections);
+    for (i = 0; i < nbSections; i++) {
+        printf("tableau indices : %i\n", i);
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            indiceSuppressionSection++;
+        }
+        tabComparaisonSymboles[i] = i - indiceSuppressionSection;
+    }
+    return tabComparaisonSymboles;
+}
+
+Elf32_Sym* creationTableDesSymbolesCorrecte(Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab) {
+
+    int i;
+
+    Elf32_Shdr symbTable;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        if (sectiontab[i].sh_type == SHT_SYMTAB) {
+            symbTable = sectiontab[i];
+        }
+    }
+
+    Elf32_Sym* tabSymbolesRelocalise = malloc(symbTable.sh_size);
+    memcpy(tabSymbolesRelocalise, allObjectSymbol, symbTable.sh_size);
+    int k = symbTable.sh_size / sizeof (Elf32_Sym);
+    for (i = 0; i < k; i++) {
+        //valeur a preciser en dur ???
+        tabSymbolesRelocalise[i].st_shndx = tabComparaisonSymboles[(allObjectSymbol[i].st_shndx)];
+    }
+    return tabSymbolesRelocalise;
 }
