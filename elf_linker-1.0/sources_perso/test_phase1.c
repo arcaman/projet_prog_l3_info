@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
@@ -44,6 +44,12 @@ int main(int argc, char** argv) {
 
             case 3: //display content
             {
+                //                char* indiceOrNameSection = malloc(20*sizeof(char));
+                //                int isInt;
+                //                printf("Indiquez un indice ou un nom de section :\n");
+                //                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
+                //                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
+                //                scanf("%d",&isInt);
                 if (argc != 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
                 } else {
@@ -67,9 +73,28 @@ int main(int argc, char** argv) {
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
                 break;
 
+            case 6:
+                ;
+                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(elfHdr, allSectHdr);
+                int nbSectionsNonRelocaliseByAllSectionHeader = countNbSectionsNonRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
+                Elf32_Ehdr elfHdrSansRelocalisations = elfHdr;
+                elfHdrSansRelocalisations.e_shnum = nbSectionsNonRelocaliseByAllSectionHeader;
+                //printf("nb sections non relocalises : %d", nbSectionsNonRelocaliseByAllSectionHeader);
+                displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
+
+                Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr);
+                int nbSectionsRelocaliseByAllSectionHeader = countNbSectionsRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
+                Elf32_Ehdr elfHdrRelocalisations = elfHdr;
+                elfHdrRelocalisations.e_shnum = nbSectionsRelocaliseByAllSectionHeader;
+                displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
+
+
+
+                break;
+
             default: //redemande ce qu'il faut afficher si sel a une aurte valeur
             {
-                printf("Veuillez réessayer avec un entier compris entre 1 et 5.\n\n");
+                printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
                 retry = 1;
             }
         }
