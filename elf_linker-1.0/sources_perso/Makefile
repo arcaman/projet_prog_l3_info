@@ -1,19 +1,11 @@
-## -*- Makefile -*-
-##
-## User: cgil
-## Time: 5 janv. 2016 10:49:17
-##
-	
 CC=gcc
 CFLAGS=-Wall -Werror
 
-programme: en_tete_elf.o test_en_tete_elf.o
-	$(CC) -o en_tete_elf en_tete_elf.o test_en_tete_elf.o
+phase_un: readelf_perso.o test_phase1.o
+	$(CC) -o phase_un readelf_perso.o test_phase1.o
 
-en_tete_elf.o: en_tete_elf.c en_tete_elf.h
-	$(CC) $(CFLAGS) -c en_tete_elf.c
-
-test_en_tete_elf.o: test_en_tete_elf.c
-	$(CC) $(CFLAGS) -c test_en_tete_elf.c	
-
-
+readelf_perso.o: readelf_perso.c readelf_perso.h
+	$(CC) $(CFLAGS) -c readelf_perso.c
+	
+test_phase1.o: test_phase1.c
+	$(CC) $(CFLAGS) -c test_phase1.c

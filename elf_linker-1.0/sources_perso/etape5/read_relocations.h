@@ -8,6 +8,7 @@
 #ifndef READ_RELOCATIONS_H
 #define	READ_RELOCATIONS_H
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <byteswap.h>
@@ -16,11 +17,19 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
+
+typedef struct
+{
+  Elf32_Rel	rel;		/* relocation entry */
+  Elf32_Word	link;		/* link */
+} RelAndLink;
+
+
 Elf32_Rel createObjectRelocations(char* nameFile, Elf32_Shdr sect, int index);
-Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect);
+RelAndLink* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr sect);
 void readRelocations(char * nameFile);
-Elf32_Rel** createAllRelocations(char * nameFile);
-void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile);
+RelAndLink** createAllRelocations(char * nameFile);
+void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile);
 
 #endif	/* READ_RELOCATIONS_H */
 
