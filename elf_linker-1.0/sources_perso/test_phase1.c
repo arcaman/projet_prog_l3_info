@@ -17,33 +17,32 @@ int main(int argc, char** argv) {
     int retry = 1;
 
     FILE* fichierAnalyse = fopen(nameFile, "r");
-    
+
     Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
-    
-    while(retry) {
-        printf("Entrez le numero correspondant aux informations a afficher pour %s\n",nameFile);
+
+    while (retry) {
+        printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
         printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
-        switch(sel) {
+        switch (sel) {
 
-            case 1 : //entete
+            case 1: //entete
             {
-                
-                afficheTableEnTete(elfHdr); 
+
+                afficheTableEnTete(elfHdr);
             }
                 break;
 
-            case 2 : //read header
+            case 2: //read header
             {
-                //Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
                 displaySectionHeader(fichierAnalyse, elfHdr, allSectHdr);
             }
                 break;
 
-            case 3 : //display content
+            case 3: //display content
             {
                 if (argc != 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
@@ -54,35 +53,34 @@ int main(int argc, char** argv) {
                     unsigned char* tableauOctetsSection = createSectionContent(fichierAnalyse, elfHdr, idSection);
                     displaySectionContent(tableauOctetsSection, fichierAnalyse, idSection, elfHdr);
                 }
-            }           
+            }
                 break;
 
-            case 4 : //symbol table
+            case 4: //symbol table
                 ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
                 Elf32_Sym* allObjectSymbol;
                 allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, allObjectSymbol);
-                //afficherTableSymbole(fichierAnalyse);
                 break;
 
-            case 5 : //relocations table
+            case 5: //relocations table
                 ;
-                
+
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
-                
-                
+
+
                 break;
-                
-            default : //redemande ce qu'il faut afficher si sel a une aurte valeur
+
+            default: //redemande ce qu'il faut afficher si sel a une aurte valeur
             {
                 printf("Veuillez réessayer avec un entier compris entre 1 et 5.\n\n");
                 retry = 1;
             }
         }
     }
-    
+
     fclose(fichierAnalyse);
-    
+
     return (EXIT_SUCCESS);
 }
 
