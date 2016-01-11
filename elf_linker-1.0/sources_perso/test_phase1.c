@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
@@ -44,12 +44,12 @@ int main(int argc, char** argv) {
 
             case 3: //display content
             {
-//                char* indiceOrNameSection = malloc(20*sizeof(char));
-//                int isInt;
-//                printf("Indiquez un indice ou un nom de section :\n");
-//                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
-//                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
-//                scanf("%d",&isInt);
+                //                char* indiceOrNameSection = malloc(20*sizeof(char));
+                //                int isInt;
+                //                printf("Indiquez un indice ou un nom de section :\n");
+                //                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
+                //                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
+                //                scanf("%d",&isInt);
                 if (argc != 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
                 } else {
@@ -73,9 +73,23 @@ int main(int argc, char** argv) {
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
                 break;
 
-            default: //redemande ce qu'il faut afficher si sel a une aurte valeur
+            case 6:
+                ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
+                Elf32_Ehdr elfHdrSansRelocalisations;
+                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
+
+                //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
+                displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
+
+                Elf32_Ehdr elfHdrRelocalisations = elfHdr;
+                Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr, &elfHdrRelocalisations);
+                displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
+
+                break;
+
+            default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
-                printf("Veuillez réessayer avec un entier compris entre 1 et 5.\n\n");
+                printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
                 retry = 1;
             }
         }
