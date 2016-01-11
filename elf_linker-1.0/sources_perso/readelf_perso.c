@@ -185,7 +185,7 @@ void displaySectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* a
     char* str = getSectionsStringTable(fichierAnalyse,elfHdr);
 
     // read all section headers
-    printf("[Nr]\tNom\t\t\tType\t\tAdr\tDecal.\tTaille\tEs\tFan\n");
+    printf("[Nr]\tNom\t\t\tType\t\tAdr\tDecal.\tTaille\tEs\tLn\tNf\tFan\n");
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
         //[Nr]
         printf("[%i]\t", idx);
@@ -250,6 +250,13 @@ void displaySectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* a
             printf("\t");
         }
 
+        //ln
+        printf("%u\t", allSectHdr[idx].sh_link);
+        
+        //info
+        printf("%u\t", allSectHdr[idx].sh_info);
+         
+         
         //fan
         char *flags = "WAXMSILO";
         int save = allSectHdr[idx].sh_flags;
