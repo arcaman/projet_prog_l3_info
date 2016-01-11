@@ -15,6 +15,8 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include "../etape1/en_tete_elf.h"
+#include <math.h>
 
 char* getSectionsStringTable(char* nameFile);
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index);

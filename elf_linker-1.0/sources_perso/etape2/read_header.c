@@ -1,6 +1,7 @@
 #include "read_header.h"
-#include "../en_tete_elf.c"
-#define MODE_BIG_ENDIAN 2
+#include "../etape1/en_tete_elf.c"
+#include <math.h>
+#define MODE_BIG_ENDIAN 2	
 
 Elf32_Shdr createObjectSectionheader(char* nameFile, int index) {
     Elf32_Shdr shdr;
@@ -67,25 +68,78 @@ void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr) {
     uint32_t idx;
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     // read ELF header, first thing in the file
-    printf("nb sections : %i\n", elfHdr.e_shnum);
+    printf("Il y a %i en-tetes de section :\n\n", elfHdr.e_shnum);
 
     //get and store the string table
     char* str = getSectionsStringTable(nameFile);
 
     // read all section headers
-
+    printf("[Nr]\tNom\t\t\tType\t\tAdr\tDecal.\tTaille\tEs\tFan\n");
     for (idx = 0; idx < elfHdr.e_shnum; idx++) {
-        printf("SECTION numero %i : \n", idx);
-        printf("name : ");
+        //[Nr]
+        printf("[%i]\t", idx);
+        //Nom
         int i = allSectHdr[idx].sh_name;
+        int size_tab = 0;
         while (str[i] != '\0') {
             printf("%c", str[i]);
             i++;
+            size_tab++;
         }
-        printf("\n");
-        printf("type : %u\n", allSectHdr[idx].sh_type); //a remplacer par leur équivalent
-        printf("size : %u offset : %u\n", allSectHdr[idx].sh_size, allSectHdr[idx].sh_offset);
-        printf("flags : ");
+        switch(size_tab/8) {
+            case 0 : printf("\t\t\t");break;
+            case 1 : printf("\t\t");break;
+            default : printf("\t");break;
+        }
+        
+        //type
+        switch(allSectHdr[idx].sh_type) {
+            case 0 : printf("NULL\t\t");break;
+            case 1 : printf("PROGBITS\t");break;
+            case 2 : printf("SYMTAB\t\t");break;
+            case 3 : printf("STRTAB\t\t");break;
+            case 4 : printf("RELA\t\t");break;
+            case 5 : printf("HASH\t\t");break;
+            case 6 : printf("DYNAMIC\t\t");break;
+            case 7 : printf("NOTE\t\t");break;
+            case 8 : printf("NOBITS\t\t");break;
+            case 9 : printf("REL\t\t");break;
+            case 10 : printf("SHLIB\t\t");break;
+            case 11 : printf("DYNSYM\t\t");break;
+            case 0x70000000 : printf("LOPROC\t\t");break;
+            case 0x7fffffff : printf("HIPROC\t\t");break;
+            case 0x80000000 : printf("LOUSER\t\t");break;
+            case 0xffffffff : printf("HIUSER\t\t");break;
+            //ARM
+            case 0x70000001 : printf("ARM_EXIDX\t");break;
+            case 0x70000002 : printf("ARM_PREEMPTMAP\t");break;
+            case 0x70000003 : printf("ARM_ATTRIBUTES\t");break;
+            case 0x70000004 : printf("ARM_DEBUGOVERLAY\t");break;
+            case 0x70000005 : printf("ARM_OVERLAYSECTION\t");break;
+            default : printf("unknown type\t");break;
+        }
+
+        //adr
+        if (allSectHdr[idx].sh_addr != 0) {
+            printf("%u\t", allSectHdr[idx].sh_addr);
+        } else {
+            printf("undef\t");
+        }
+        
+        //decalage
+        printf("%u\t", allSectHdr[idx].sh_offset); 
+
+        //size
+        printf("%u\t", allSectHdr[idx].sh_size);
+
+        //Es
+        if (allSectHdr[idx].sh_entsize != 0) {
+            printf("%u bits\t", allSectHdr[idx].sh_entsize);
+        } else {
+            printf("\t");
+        }
+
+        //fan
         char *flags = "WAXMSILO";
         int save = allSectHdr[idx].sh_flags;
         for (i = 0; i < 8; i++) {
@@ -94,17 +148,8 @@ void displaySectionHeader(char* nameFile, Elf32_Shdr* allSectHdr) {
             }
             allSectHdr[idx].sh_flags = save;
         }
-        printf("\n");
-        if (allSectHdr[idx].sh_addr != 0) {
-            printf("address : %u\n", allSectHdr[idx].sh_addr);
+        printf("\t");
 
-
-        } else {
-            printf("pas d'adresse memoire predefinie pour le stockage de cette section\n");
-        }
-        if (allSectHdr[idx].sh_entsize != 0) {
-            printf("taille des entrees prefixee a %u bits \n", allSectHdr[idx].sh_entsize);
-        }
 
         printf("\n");
 
