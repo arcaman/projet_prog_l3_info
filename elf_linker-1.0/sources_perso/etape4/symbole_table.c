@@ -83,68 +83,70 @@ void afficherTableSymbole(char * nameFile) {
 
     int k = symbtab.sh_size / sizeof (Elf32_Sym);
     Elf32_Sym* allSymbole = createAllObjectSymbol(nameFile);
+    
+    printf("Num\tNom\tVal\tTail\tNdx\tLien\tType\t\tVis\n\n");
 
     for (i = 0; i < k; i++) {
-        printf("symbole numero %i :\n", i);
-        printf("nom : ");
+        printf("%i\t", i);
+        //printf("nom : ");
         int j = allSymbole[i].st_name;
         while (str[j] != '\0') {
             printf("%c", str[j]);
             j++;
         }
-        printf("\n");
-        printf("valeur : %i\n", allSymbole[i].st_value);
-        printf("taille : %i\n", allSymbole[i].st_size);
-        printf("symbole utilise dans la section %i\n", allSymbole[i].st_shndx);
-        printf("attachement : ");
+        printf("\t");
+        printf("%i\t", allSymbole[i].st_value);
+        printf("%i\t", allSymbole[i].st_size);
+        printf("%i\t", allSymbole[i].st_shndx);
+        //printf("attachement : ");
         switch (ELF32_ST_BIND(allSymbole[i].st_info)) {
             case 0:
-                printf("local\n");
+                printf("local\t");
                 break;
             case 1:
-                printf("global\n");
+                printf("global\t");
                 break;
             case 2:
-                printf("faible\n");
+                printf("faible\t");
                 break;
             case 13:
-                printf("reserve au processeur\n");
+                printf("reserve au processeur\t");
                 break;
             case 15:
-                printf("reserve au processeur\n");
+                printf("reserve au processeur\t");
                 break;
             default:
-                printf("inconnu\n");
+                printf("inconnu\t");
 
         }
-        printf("type : ");
+        //printf("type : ");
         switch (ELF32_ST_TYPE(allSymbole[i].st_info)) {
             case 0:
-                printf("non precise\n");
+                printf("non precise\t\t");
                 break;
             case 1:
-                printf("objet\n");
+                printf("objet\\tt");
                 break;
             case 2:
-                printf("fonction\n");
+                printf("fonction\t\t");
                 break;
             case 3:
-                printf("section\n");
+                printf("section\t\t");
                 break;
             case 4:
-                printf("fichier\n");
+                printf("fichier\t\t");
                 break;
             case 13:
-                printf("reserve au processeur\n");
+                printf("reserve au processeur\t");
                 break;
             case 15:
-                printf("reserve au processeur\n");
+                printf("reserve au processeur\t");
                 break;
             default:
-                printf("autre type de symbole\n");
+                printf("autre type de symbole\t");
         }
 
-
+        printf("%u",ELF32_ST_VISIBILITY(allSymbole[i].st_info));
 
         printf("\n");
     }
