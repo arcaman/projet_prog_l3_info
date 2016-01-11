@@ -64,11 +64,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 5: //relocations table
-                ;
-
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
-
-
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une aurte valeur
