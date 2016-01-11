@@ -38,13 +38,18 @@ int main(int argc, char** argv) {
 
             case 2: //read header
             {
-                //Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
                 displaySectionHeader(fichierAnalyse, elfHdr, allSectHdr);
             }
                 break;
 
             case 3: //display content
             {
+                //                char* indiceOrNameSection = malloc(20*sizeof(char));
+                //                int isInt;
+                //                printf("Indiquez un indice ou un nom de section :\n");
+                //                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
+                //                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
+                //                scanf("%d",&isInt);
                 if (argc != 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
                 } else {
@@ -62,7 +67,6 @@ int main(int argc, char** argv) {
                 Elf32_Sym* allObjectSymbol;
                 allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, allObjectSymbol);
-                //afficherTableSymbole(fichierAnalyse);
                 break;
 
             case 5: //relocations table
@@ -81,17 +85,16 @@ int main(int argc, char** argv) {
                 elfHdrSansRelocalisations.e_shnum = nbSectionsNonRelocaliseByAllSectionHeader;
                 //printf("nb sections non relocalises : %d", nbSectionsNonRelocaliseByAllSectionHeader);
                 displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
-                
+
                 Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr);
                 int nbSectionsRelocaliseByAllSectionHeader = countNbSectionsRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
                 Elf32_Ehdr elfHdrRelocalisations = elfHdr;
                 elfHdrRelocalisations.e_shnum = nbSectionsRelocaliseByAllSectionHeader;
                 displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
-                
-                
-                
-                break;
 
+
+
+                break;
 
             default: //redemande ce qu'il faut afficher si sel a une aurte valeur
             {

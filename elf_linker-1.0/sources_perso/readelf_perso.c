@@ -7,8 +7,6 @@
 Elf32_Ehdr createObjectEnteteELF(FILE *fichierAnalyse) {
     Elf32_Ehdr enTeteHeader;
 
-    //FILE* fichierAnalyse = fopen(nameFile, "r");
-
     fread(&enTeteHeader, sizeof (Elf32_Ehdr), 1, fichierAnalyse);
 
     if (enTeteHeader.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
@@ -27,7 +25,6 @@ Elf32_Ehdr createObjectEnteteELF(FILE *fichierAnalyse) {
         enTeteHeader.e_shstrndx = __bswap_16(enTeteHeader.e_shstrndx);
     }
 
-    //fclose(fichierAnalyse);
 
     return enTeteHeader;
 }
@@ -40,9 +37,6 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
         printf("%02x ", enTeteHeader.e_ident[k]);
     }
     printf("\n");
-
-
-
     switch (enTeteHeader.e_ident[4]) {
         case 1: printf("\tClasse : 32-bit\n");
             break;
@@ -131,8 +125,6 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
 
 Elf32_Shdr createObjectSectionheader(FILE* fichierAnalyse, int index, Elf32_Ehdr elfHdr) {
     Elf32_Shdr shdr;
-    //FILE* fichierAnalyse = fopen(nameFile, "r");
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     fseek(fichierAnalyse, elfHdr.e_shoff + index * sizeof (Elf32_Shdr), SEEK_SET);
 
     fread(&shdr.sh_name, sizeof (Elf32_Word), 1, fichierAnalyse);
@@ -158,14 +150,11 @@ Elf32_Shdr createObjectSectionheader(FILE* fichierAnalyse, int index, Elf32_Ehdr
         shdr.sh_addralign = __bswap_32(shdr.sh_addralign);
         shdr.sh_entsize = __bswap_32(shdr.sh_entsize);
     }
-
-    //fclose(fichierAnalyse);
     return shdr;
 }
 
 Elf32_Shdr* createAllObjectSectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
 
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     int nbSections = elfHdr.e_shnum;
     int i;
     Elf32_Shdr* allSectHdr = malloc(sizeof (Elf32_Shdr) * nbSections);
@@ -239,7 +228,6 @@ void displaySectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* a
 int getIndexSectionByNameOrIndex(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, char *indiceOrNameSection, int isInt, Elf32_Shdr* allSectHdr) {
 
     int idx;
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
 
     int nbSections = elfHdr.e_shnum;
 
@@ -312,9 +300,6 @@ void displaySectionContent(unsigned char* tableauOctetsSection, FILE* fichierAna
 Elf32_Sym createObjectSymbol(FILE* fichierAnalyse, int index, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab) {
     Elf32_Sym sym;
     Elf32_Shdr symbtab;
-    //FILE* fichierAnalyse = fopen(nameFile, "r");
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    //Elf32_Shdr* sectiontab = createAllObjectSectionHeader(fichierAnalyse);
     int i;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (sectiontab[i].sh_type == SHT_SYMTAB) {
@@ -339,7 +324,6 @@ Elf32_Sym createObjectSymbol(FILE* fichierAnalyse, int index, Elf32_Ehdr elfHdr,
         sym.st_shndx = __bswap_16(sym.st_shndx);
     }
 
-    //fclose(fichierAnalyse);
     return sym;
 }
 
@@ -347,8 +331,6 @@ Elf32_Sym* createAllObjectSymbol(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_
     int i;
 
     Elf32_Shdr symbTable;
-    // Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    //Elf32_Shdr* sectiontab = createAllObjectSectionHeader(nameFile);
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (sectiontab[i].sh_type == SHT_SYMTAB) {
             symbTable = sectiontab[i];
@@ -366,8 +348,6 @@ Elf32_Sym* createAllObjectSymbol(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_
 
 void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab, Elf32_Sym * allSymbole) {
     Elf32_Shdr symbtab, strsymbtab;
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    //Elf32_Shdr* sectiontab = createAllObjectSectionHeader(nameFile);
     int i;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (sectiontab[i].sh_type == SHT_SYMTAB) {
@@ -377,16 +357,13 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
     }
     //NE PAS REMPLACER PAR char* str = getSectionsStringTable(nameFile);
     //car on ne récupereras pas la bonne table
-    //FILE* fichier = fopen(nameFile, "r");
     fseek(fichierAnalyse, strsymbtab.sh_offset, SEEK_SET);
     char * str = malloc(strsymbtab.sh_size);
     for (i = 0; i < strsymbtab.sh_size; i++) {
         str[i] = fgetc(fichierAnalyse);
     }
-    //fclose(fichier);
 
     int k = symbtab.sh_size / sizeof (Elf32_Sym);
-    //Elf32_Sym* allSymbole = createAllObjectSymbol(nameFile);
 
     for (i = 0; i < k; i++) {
         printf("symbole numero %i :\n", i);
@@ -458,15 +435,12 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 
 Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int index, Elf32_Ehdr elfHdr) {
     Elf32_Rel rel;
-    //FILE* fichierAnalyse = fopen(nameFile, "r");
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     fseek(fichierAnalyse, sect.sh_offset + index * sizeof (Elf32_Rel), SEEK_SET);
     fread(&rel, sizeof (Elf32_Rel), 1, fichierAnalyse);
     if (elfHdr.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
         rel.r_info = __bswap_32(rel.r_info);
         rel.r_offset = __bswap_32(rel.r_offset);
     }
-    //fclose(fichierAnalyse);
     return rel;
 }
 
@@ -481,8 +455,6 @@ RelAndLink * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32
 }
 
 RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    //Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     int i;
     int nb_sect_rel = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
@@ -505,8 +477,6 @@ RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32
 }
 
 void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
-    //Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
-    //Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
     int i;
     int nb_sect_rel = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
