@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
                 break;
 
             case 6:
-                ;
-                Elf32_Ehdr elfHdrSansRelocalisations = elfHdr;
+                ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
+                Elf32_Ehdr elfHdrSansRelocalisations;
                 Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
 
                 //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 
                 break;
 
-            default: //redemande ce qu'il faut afficher si sel a une aurte valeur
+            default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
                 printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
                 retry = 1;
