@@ -44,6 +44,12 @@ int main(int argc, char** argv) {
 
             case 3: //display content
             {
+//                char* indiceOrNameSection = malloc(20*sizeof(char));
+//                int isInt;
+//                printf("Indiquez un indice ou un nom de section :\n");
+//                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
+//                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
+//                scanf("%d",&isInt);
                 if (argc != 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
                 } else {
@@ -64,11 +70,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 5: //relocations table
-                ;
-
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
-
-
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une aurte valeur
