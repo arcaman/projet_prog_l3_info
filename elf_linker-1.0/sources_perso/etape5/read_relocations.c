@@ -27,7 +27,7 @@ Elf32_Rel* createAllRelocationBySection(char* nameFile, int nbent, Elf32_Shdr se
         }
     }
     Elf32_Rel* tab = malloc(nb_ent_tot * sizeof (Elf32_Rel));
-    
+
     for (i = 0; i < nbent; i++) {
         tab[i] = createObjectRelocations(nameFile, sect, i);
     }
@@ -64,7 +64,6 @@ Elf32_Rel** createAllRelocations(char * nameFile) {
     return allSectRel;
 }
 
-
 void readRelocations(char * nameFile) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(nameFile);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(nameFile);
@@ -87,7 +86,7 @@ void readRelocations(char * nameFile) {
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
-            
+
             int nb_ent = allSectHdr[i].sh_size / allSectHdr[i].sh_entsize;
             allRelForSec = createAllRelocationBySection(nameFile, nb_ent, allSectHdr[i]);
             allSectRel[l] = allRelForSec;
@@ -103,7 +102,7 @@ void readRelocations(char * nameFile) {
 
 void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect_rel, char* nameFile) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(nameFile);
-    
+
     char* str = getSectionsStringTable(nameFile);
     int k, n = 0;
     int currentRel = 0;
@@ -116,7 +115,7 @@ void affichageRelocations(Elf32_Rel** allRel, int* tab_ind_sect_rel, int nb_sect
             printf("%c", str[i]);
             i++;
         }
-        printf(" a l adresse de decalage 0x%x contient %d entrees:\n",allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
+        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
         printf("Info\t\tDecalage\n");
         for (n = currentRel; n < nextRelSect; n++) {
             printf("%08x\t%08x\n", allRel[k][n].r_info, allRel[k][n].r_offset);
