@@ -75,20 +75,14 @@ int main(int argc, char** argv) {
 
             case 6:
                 ;
-                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(elfHdr, allSectHdr);
-                int nbSectionsNonRelocaliseByAllSectionHeader = countNbSectionsNonRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
                 Elf32_Ehdr elfHdrSansRelocalisations = elfHdr;
-                elfHdrSansRelocalisations.e_shnum = nbSectionsNonRelocaliseByAllSectionHeader;
-                //printf("nb sections non relocalises : %d", nbSectionsNonRelocaliseByAllSectionHeader);
+                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(elfHdr, allSectHdr, &elfHdrSansRelocalisations);
+                //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
                 displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
 
-                Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr);
-                int nbSectionsRelocaliseByAllSectionHeader = countNbSectionsRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
                 Elf32_Ehdr elfHdrRelocalisations = elfHdr;
-                elfHdrRelocalisations.e_shnum = nbSectionsRelocaliseByAllSectionHeader;
+                Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr, &elfHdrRelocalisations);
                 displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
-
-
 
                 break;
 
