@@ -553,3 +553,73 @@ void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sec
         printf("\n");
     }
 }
+
+Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
+
+    int nbSections = elfHdr.e_shnum;
+    int i;
+    int j = 0; //indice pour le tableau des sections
+    int nbSectionsNonRelocalises = countNbSectionsNonRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
+    //printf("NB SECTIONS NON RELOC : %d", nbSectionsNonRelocalises);
+    Elf32_Shdr* objSectHdrWithoutRelocalisations = malloc(sizeof (Elf32_Shdr) * nbSectionsNonRelocalises);
+    for (i = 0; i < nbSections; i++) {
+
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            //printf("La section %d a une relocalisation\n", i);
+            //On ne fait rien. On ne recupere pas la section
+        } else {
+            objSectHdrWithoutRelocalisations[j] = allSectHdr[i];
+            j++;
+
+        }
+
+        //printf("section numero %d : %d \n", i, allSectHdr[i].sh_type);
+    }
+    return objSectHdrWithoutRelocalisations;
+}
+
+int countNbSectionsNonRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
+    int indiceNbCasesTabSansRelocalisations = 0;
+    int nbSections = elfHdr.e_shnum;
+    int i;
+    for (i = 0; i < nbSections; i++) {
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            //printf("La section %d a une relocalisation\n", i);
+            //On ne fait rien. On ne recupere pas la section
+        } else {
+            indiceNbCasesTabSansRelocalisations++;
+        }
+    }
+    return indiceNbCasesTabSansRelocalisations;
+}
+
+Elf32_Shdr* createObjectSectionHeaderRelocalisations(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
+
+    int nbSections = elfHdr.e_shnum;
+    int i;
+    int j = 0; //indice pour le tableau des sections
+    int nbSectionsRelocalises = countNbSectionsRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
+    //printf("NB SECTIONS NON RELOC : %d", nbSectionsNonRelocalises);
+    Elf32_Shdr* objSectHdrRelocalisations = malloc(sizeof (Elf32_Shdr) * nbSectionsRelocalises);
+    for (i = 0; i < nbSections; i++) {
+
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            objSectHdrRelocalisations[j] = allSectHdr[i];
+            j++;
+        }
+        //printf("section numero %d : %d \n", i, allSectHdr[i].sh_type);
+    }
+    return objSectHdrRelocalisations;
+}
+
+int countNbSectionsRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
+    int indiceNbCasesTabRelocalisations = 0;
+    int nbSections = elfHdr.e_shnum;
+    int i;
+    for (i = 0; i < nbSections; i++) {
+        if (allSectHdr[i].sh_type == SHT_REL) {
+            indiceNbCasesTabRelocalisations++;
+        }
+    }
+    return indiceNbCasesTabRelocalisations;
+}
