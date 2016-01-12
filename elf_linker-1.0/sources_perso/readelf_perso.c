@@ -37,20 +37,17 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
         printf("%02x ", enTeteHeader.e_ident[k]);
     }
     printf("\n");
-    switch (enTeteHeader.e_ident[4]) {
-        case 1: printf("\tClasse : 32-bit\n");
-            break;
-        case 2: printf("\tClasse : 64-bit\n");
-            break;
-        default: printf("\tClasse : unknown\n");
+    const char* classe[] = {"", "32-bit", "64-bit"};
+    if (enTeteHeader.e_ident[4] == 1 || enTeteHeader.e_ident[4] == 2) {
+        printf("\tClasse : %s\n", classe[enTeteHeader.e_ident[4]]);
+    } else {
+        printf("\tClasse : unknown\n");
     }
-
-    switch (enTeteHeader.e_ident[5]) {
-        case 1: printf("\tDonnees : little endian\n");
-            break;
-        case 2: printf("\tDonnees : big endian\n");
-            break;
-        default: printf("\tDonnees : unknown\n");
+    const char* endian[] = {"", "little endian", "big endian"};
+    if (enTeteHeader.e_ident[5] == 1 || enTeteHeader.e_ident[5] == 2) {
+        printf("\tDonnees : %s\n", endian[enTeteHeader.e_ident[5]]);
+    } else {
+        printf("\tDonnees : unknown\n");
     }
 
     printf("\tVersion : %u\n", enTeteHeader.e_ident[6]);
@@ -82,7 +79,6 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
     printf("\tVersion ABI : %u\n", enTeteHeader.e_ident[8]);
 
     printf("Type : %u\n", enTeteHeader.e_type);
-
     switch (enTeteHeader.e_machine) {
         case 0: printf("Machine : No specific instruction set\n");
             break;
