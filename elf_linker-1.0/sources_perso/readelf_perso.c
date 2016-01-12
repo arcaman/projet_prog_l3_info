@@ -433,7 +433,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
     }
     //NE PAS REMPLACER PAR char* str = getSectionsStringTable(nameFile);
     //car on ne récupereras pas la bonne table
-    
+
     fseek(fichierAnalyse, strsymbtab.sh_offset, SEEK_SET);
     char * str = malloc(strsymbtab.sh_size);
     for (i = 0; i < strsymbtab.sh_size; i++) {
@@ -443,7 +443,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 
 
     int k = symbtab.sh_size / sizeof (Elf32_Sym);
-    
+
     printf("Num\tNom\tVal\tTail\tNdx\tLien\tType\t\tVis\n\n");
 
     for (i = 0; i < k; i++) {
