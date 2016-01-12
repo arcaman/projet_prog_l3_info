@@ -12,12 +12,16 @@
 /*
  * 
  */
-int main(int argc, char** argv) { 
-    if(argc==1) {printf("Erreur : saisissez un argument !\n");
-        return 1;}
+int main(int argc, char** argv) {
+    //message d'erreur
+    if (argc == 1) {
+        printf("Erreur : saisissez un argument !\n");
+        return 1;
+    }
+    
     char *nameFile = argv[1];
     int retry = 1;
-    
+
 
     FILE* fichierAnalyse = fopen(nameFile, "r");
 
@@ -26,11 +30,22 @@ int main(int argc, char** argv) {
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
 
     while (retry) {
-        printf("\nEntrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Exit\n\n");
+
         int sel = 0;
-        scanf("%d", &sel);
-        retry = 1;
+
+        //vérification du mode auto ou manuel
+        if (argc == 5) {
+            int numero_etape = atoi(argv[4]);   //argument facultatif pour les tests
+            sel = numero_etape;
+            retry = 0;
+        } else {
+            printf("\nEntrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
+            printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Exit\n\n");
+            sel = 0;
+            scanf("%d", &sel);
+            retry = 1;
+        }
+
         switch (sel) {
 
             case 1: //entete
@@ -54,7 +69,7 @@ int main(int argc, char** argv) {
                 //                scanf("Indiquez un indice ou un nom de section %s",indiceOrNameSection);
                 //                printf("Indiquez 1 si c'est un indice ou 0 si c'est un nom de section : \n");
                 //                scanf("%d",&isInt);
-                if (argc != 4) {
+                if (argc < 4) {
                     printf("Il n y a pas suffisamment d arguments pour afficher le contenu\n");
                 } else {
                     char* indiceOrNameSection = argv[2];
@@ -74,10 +89,11 @@ int main(int argc, char** argv) {
             case 5: //relocations table
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
                 break;
-                
+
             case 6: //Exit the program
                 ;
                 retry = 0;
+                return 0;
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
