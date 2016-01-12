@@ -12,9 +12,12 @@
 /*
  * 
  */
-int main(int argc, char** argv) {
+int main(int argc, char** argv) { 
+    if(argc==1) {printf("Erreur : saisissez un argument !\n");
+        return 1;}
     char *nameFile = argv[1];
     int retry = 1;
+    
 
     FILE* fichierAnalyse = fopen(nameFile, "r");
 
