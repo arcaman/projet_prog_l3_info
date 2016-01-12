@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
 
                 int* tabComparaisonSymboles = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
-                Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr);
+                Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr, argc, argv);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
 
                 break;

@@ -455,7 +455,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
             j++;
         }
         printf("\t");
-        printf("%i\t", allSymbole[i].st_value);
+        printf("%08x\t", allSymbole[i].st_value);
         printf("%i\t", allSymbole[i].st_size);
         printf("%i\t", allSymbole[i].st_shndx);
         //printf("attachement : ");
@@ -704,9 +704,9 @@ int* createTableComparaisonSymbolesApresRelocation(Elf32_Ehdr elfHdr, Elf32_Shdr
     return tabComparaisonSymboles;
 }
 
-Elf32_Sym* creationTableDesSymbolesCorrecte(Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab) {
+Elf32_Sym* creationTableDesSymbolesCorrecte(FILE* fichierAnalyse, Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab, int argc, char** argv) {
 
-    int i;
+    int i, j;
 
     Elf32_Shdr symbTable;
     for (i = 0; i < elfHdr.e_shnum; i++) {
@@ -719,8 +719,36 @@ Elf32_Sym* creationTableDesSymbolesCorrecte(Elf32_Sym* allObjectSymbol, int* tab
     memcpy(tabSymbolesRelocalise, allObjectSymbol, symbTable.sh_size);
     int k = symbTable.sh_size / sizeof (Elf32_Sym);
     for (i = 0; i < k; i++) {
-        //valeur a preciser en dur ???
         tabSymbolesRelocalise[i].st_shndx = tabComparaisonSymboles[(allObjectSymbol[i].st_shndx)];
+        //parcours de tous les symboles ou on a une adresse
+        for (j = 2; j < argc; j++) { //debut des parametres a partir de argv[2] (le premier etant le script et le deuxieme le fichier)
+            int count = 1;
+            while (argv[j][count] != '\0') {
+                count++;
+            }
+            char* tableauCaracteres = malloc(sizeof (char*)*count);
+            strcpy(tableauCaracteres, argv[j]);
+
+            char* chaineSplit = strtok(tableauCaracteres, "="); //1er argument qui correspond au nom de la section
+
+            int indiceSection = getIndexSectionByNameOrIndex(fichierAnalyse, elfHdr, chaineSplit, 0, sectiontab);
+            if (indiceSection != -1 && indiceSection == tabSymbolesRelocalise[i].st_shndx) {
+                char* adresseSection = strtok(NULL, "="); //on recupere l adresse apres le =
+                u_int32_t adresseSectionHexa = convertCharToHexadecimal(adresseSection);
+                tabSymbolesRelocalise[i].st_value = tabSymbolesRelocalise[i].st_value + adresseSectionHexa;
+            }
+            free(tableauCaracteres);
+        }
     }
     return tabSymbolesRelocalise;
+}
+
+u_int32_t convertCharToHexadecimal(char* valueHexaString) {
+    int i = 2;
+    u_int32_t valeurHexadecimal = 0;
+    while (valueHexaString[i] != '\0') {
+        valeurHexadecimal = 16 * valeurHexadecimal + (valueHexaString[i] - '0');
+        i++;
+    }
+    return valeurHexadecimal;
 }

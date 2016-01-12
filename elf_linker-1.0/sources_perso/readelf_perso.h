@@ -61,6 +61,8 @@ int countNbSectionsRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* 
 
 int* createTableComparaisonSymbolesApresRelocation(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr);
 
-Elf32_Sym* creationTableDesSymbolesCorrecte(Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab);
+Elf32_Sym* creationTableDesSymbolesCorrecte(FILE* fichierAnalyse, Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab, int argc, char** argv);
+
+u_int32_t convertCharToHexadecimal(char* valueHexaString);
 #endif	/* READELF_PERSO_H */
 
