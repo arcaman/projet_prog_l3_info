@@ -26,11 +26,11 @@ int main(int argc, char** argv) {
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
 
     while (retry) {
-        printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
+        printf("\nEntrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Exit\n\n");
         int sel = 0;
         scanf("%d", &sel);
-        retry = 0;
+        retry = 1;
         switch (sel) {
 
             case 1: //entete
@@ -74,11 +74,15 @@ int main(int argc, char** argv) {
             case 5: //relocations table
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
                 break;
+                
+            case 6: //Exit the program
+                ;
+                retry = 0;
+                break;
 
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
                 printf("Veuillez réessayer avec un entier compris entre 1 et 5.\n\n");
-                retry = 1;
             }
         }
     }
