@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n\n");
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
@@ -72,9 +72,28 @@ int main(int argc, char** argv) {
                 readRelocations(fichierAnalyse, elfHdr, allSectHdr);
                 break;
 
+            case 6:
+                ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
+                Elf32_Ehdr elfHdrSansRelocalisations;
+                Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
+
+                //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
+                displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
+
+                Elf32_Ehdr elfHdrRelocalisations = elfHdr;
+                Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr, &elfHdrRelocalisations);
+                displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
+
+
+                int* tabComparaisonSymboles = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
+                Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr);
+                afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
+
+                break;
+
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
-                printf("Veuillez réessayer avec un entier compris entre 1 et 5.\n\n");
+                printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
                 retry = 1;
             }
         }
