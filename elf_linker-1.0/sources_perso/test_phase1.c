@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
 
     Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
+    Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
@@ -64,8 +65,6 @@ int main(int argc, char** argv) {
 
             case 4: //symbol table
                 ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
-                Elf32_Sym* allObjectSymbol;
-                allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, allObjectSymbol);
                 break;
 
@@ -84,6 +83,11 @@ int main(int argc, char** argv) {
                 Elf32_Ehdr elfHdrRelocalisations = elfHdr;
                 Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr, &elfHdrRelocalisations);
                 displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
+
+
+                int* tabComparaisonSymboles = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
+                Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr);
+                afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
 
                 break;
 
