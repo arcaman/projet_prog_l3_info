@@ -773,17 +773,22 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
     Elf32_Ehdr elfHdrRelocalisations;
     Elf32_Shdr* shdrRel = createObjectSectionHeaderRelocalisations(elfHdr, shdr, &elfHdrRelocalisations);
     unsigned char* sectionContent = createSectionContent(fichierAnalyse, elfHdr, indiceSection);
+    displaySectionContent(sectionContent, fichierAnalyse, indiceSection, elfHdr);
+    printf("\n");
     for (i = 0; i < elfHdrRelocalisations.e_shnum; i++) {
         if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
+            printf("section %i", indiceSection);
             RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_size / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
             int nbIter = (shdrRel[i].sh_size / sizeof (Elf32_Rel));
+            printf(" iterations a faire : %i\n", nbIter);
             for (j = 0; j < nbIter; j++) {
 
                 //printf("\nindex symb : %i\n", ELF32_R_SYM(reltable[j].rel.r_info));
                 Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
 
                 Elf32_Addr S = symbole.st_value;
-
+                printf("val1... offset = %i\n",reltable[j].rel.r_offset);
+                
                 unsigned char A[4];
                 A[0] = sectionContent[reltable[j].rel.r_offset];
                 A[1] = sectionContent[(reltable[j].rel.r_offset) + 1];
@@ -794,11 +799,13 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                 //printf("\n\n%d - %x\n\n", AInt, AInt);
 
                 Elf32_Word res = 0;
+                printf("val2\n");
                 switch (ELF32_R_TYPE(reltable[j].rel.r_info)) {
                     case 2:
                         //R_ARM_ABS32
                         // note, T = 0 dans notre cas
                         //(S + A) | T
+                        printf("cas 02 ...");
                         res = (S + AInt) | 0;
                         break;
                     case 5:
@@ -816,6 +823,18 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                         //S + A
                         res = S + AInt;
                         break;
+                    case 28:
+                        //R_ARM_CALL
+                        //( (S + A) | T) – P
+                        printf("cas 28 ...");
+                        res = ((S + AInt) | 0) - reltable[j].rel.r_offset;
+                        break;
+                    case 29:
+                        //R_ARM_JUMP24
+                        //( (S + A) | T) – P
+                        printf("cas 29 ...");
+                        res = ((S + AInt) | 0) - reltable[j].rel.r_offset;
+                        break;
                     default:
                         //printf("unknow type\t");
                         break;
@@ -826,7 +845,7 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                 sectionContent[reltable[j].rel.r_offset + 1] = (res >> 16) & 0xFF;
                 sectionContent[reltable[j].rel.r_offset + 2] = (res >> 8) & 0xFF;
                 sectionContent[reltable[j].rel.r_offset + 3] = res & 0xFF;
-
+                printf(" reussi\n");
             }
         }
     }

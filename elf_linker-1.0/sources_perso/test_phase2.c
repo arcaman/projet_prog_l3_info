@@ -21,11 +21,11 @@ int main(int argc, char** argv) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
-    Elf32_Phdr programHdr = createObjectProgramHeader(fichierAnalyse, elfHdr);
+    //Elf32_Phdr programHdr = createObjectProgramHeader(fichierAnalyse, elfHdr);
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n7 - modification sections\n\n");
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
@@ -77,62 +77,32 @@ int main(int argc, char** argv) {
                 ; //on ne peut pas declarer une variable directement après un statement, d'ou la ligne vide
                 Elf32_Ehdr elfHdrSansRelocalisations;
                 Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
-
                 //printf("nb sections non relocalises : %d\n\n\n", elfHdrSansRelocalisations.e_shnum);
                 displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansRelocalisations);
-
                 Elf32_Ehdr elfHdrRelocalisations = elfHdr;
                 Elf32_Shdr* objSectHdrAvecRelocalisations = createObjectSectionHeaderRelocalisations(elfHdr, allSectHdr, &elfHdrRelocalisations);
                 displaySectionHeader(fichierAnalyse, elfHdrRelocalisations, objSectHdrAvecRelocalisations);
-
-
                 int* tabComparaisonSymboles = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
                 Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr, argc, argv);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
-
                 unsigned char** tableauAllSectionContent = createAllObjectSectionContent(fichierAnalyse, elfHdrSansRelocalisations);
+                printf("original:\n");
+                unsigned char** tableauSectionRelocation = replaceAllSectionsContent(fichierAnalyse, allSectHdr, elfHdrSansRelocalisations, tabSymbolesRelocalise);
+
                 int j;
                 for (j = 0; j < elfHdrSansRelocalisations.e_shnum; j++) {
-                    printf("contenu de la section %d :\n", j);
+                    printf("\ncontenu de la section %d :\n", j);
+                    printf("original:\n");
                     displaySectionContent(tableauAllSectionContent[j], fichierAnalyse, j, elfHdrSansRelocalisations);
+                    printf("modifie:\n");
+                    displaySectionContent(tableauSectionRelocation[j], fichierAnalyse, j, elfHdrSansRelocalisations);
                 }
-                break;
-            case 7:
-                ;
-                printf("\n section non modifiee\n");
-                unsigned char* tableauOctetsSection = createSectionContent(fichierAnalyse, elfHdr, 5);
-                displaySectionContent(tableauOctetsSection, fichierAnalyse, 5, elfHdr);
-                printf("\n table symboles modifiée\n");
-                int* tabComparaison = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
-                Elf32_Sym* tabSymboles = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaison, elfHdr, allSectHdr, argc, argv);
-                afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymboles);
-                unsigned char* tableauOctetsSection2 = replaceSectionContent(fichierAnalyse, allSectHdr, elfHdr, 5, tabSymboles);
-                printf("\n section modifiee\n");
-                displaySectionContent(tableauOctetsSection2, fichierAnalyse, 5, elfHdr);
+
                 break;
 
-            case 8:
-                ;
-                Elf32_Shdr* objSectHdrSansisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
-
-                displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansisations);
-                int k = 0;
-                Elf32_Sym* tabSymb = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaison, elfHdr, allSectHdr, argc, argv);
-                unsigned char** tabAllSectionContent = createAllObjectSectionContent(fichierAnalyse, elfHdrSansRelocalisations);
-                unsigned char** tabModifie = replaceAllSectionsContent(fichierAnalyse, allSectHdr, elfHdr, tabSymb);
-                for (k = 0; k < elfHdrSansRelocalisations.e_shnum; k++) {
-                    
-                    printf("contenu de la section %d :\n\n", k);
-                    printf("version originale\n");
-                    displaySectionContent(tabAllSectionContent[k], fichierAnalyse, k, elfHdrSansRelocalisations);
-                    printf("version modifiee\n");
-                    displaySectionContent(tabModifie[k], fichierAnalyse, k, elfHdrSansRelocalisations);
-                    printf("\n");
-                }
-                break;
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
-                printf("Veuillez réessayer avec un entier compris entre 1 et 7.\n\n");
+                printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
                 retry = 0;
             }
         }
