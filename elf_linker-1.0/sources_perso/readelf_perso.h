@@ -35,6 +35,7 @@ Elf32_Shdr* createAllObjectSectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr
 /* ----- DISPLAY CONTENT ----- */
 int getIndexSectionByNameOrIndex(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, char *indiceOrNameSection, int isInt, Elf32_Shdr* allSectHdr);
 unsigned char* createSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, int indiceSectionHeader);
+unsigned char** createAllObjectSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 void displaySectionContent(unsigned char* tableauOctetsSection, FILE* fichierAnalyse, int indiceSectionHeader, Elf32_Ehdr elfHdr);
 
 /* ----- SYMBOL TABLE ----- */
@@ -48,7 +49,7 @@ Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int ind
 RelAndInfo * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
 void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
 RelAndInfo** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
-void affichageRelocations(RelAndInfo** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
+void affichageRelocations(RelAndInfo** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
 /* ----- EDITION OBJET SANS RELOCALISATION -----*/
 Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, Elf32_Ehdr elf, Elf32_Ehdr* elfApresReloc);
