@@ -32,28 +32,29 @@ Elf32_Ehdr createObjectEnteteELF(FILE *fichierAnalyse) {
 void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
 
     int k;
+    printf("En-tete ELF:\n");
     printf("Magique : ");
     for (k = 0; k < EI_NIDENT; k++) {
         printf("%02x ", enTeteHeader.e_ident[k]);
     }
     printf("\n");
-    const char* classe[] = {"", "32-bit", "64-bit"};
+    const char* classe[] = {"", "ELF32", "ELF64"};
     if (enTeteHeader.e_ident[4] == 1 || enTeteHeader.e_ident[4] == 2) {
         printf("\tClasse : %s\n", classe[enTeteHeader.e_ident[4]]);
     } else {
         printf("\tClasse : unknown\n");
     }
-    const char* endian[] = {"", "little endian", "big endian"};
+    const char* endian[] = {"", "complement a 2, systeme a octets de poids faible d'abord (little endian)", "complement a 2, systeme a octets de poids fort d'abord (big endian)"};
     if (enTeteHeader.e_ident[5] == 1 || enTeteHeader.e_ident[5] == 2) {
         printf("\tDonnees : %s\n", endian[enTeteHeader.e_ident[5]]);
     } else {
         printf("\tDonnees : unknown\n");
     }
 
-    printf("\tVersion : %u\n", enTeteHeader.e_ident[6]);
-
+    printf("\tVersion : %u (current)\n", enTeteHeader.e_ident[6]);
+    
     switch (enTeteHeader.e_ident[7]) {
-        case 0: printf("\tOS/ABI : System V\n");
+        case 0: printf("\tOS/ABI : UNIX - System V\n");
             break;
         case 1: printf("\tOS/ABI : HP-UX\n");
             break;
@@ -78,7 +79,12 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
 
     printf("\tVersion ABI : %u\n", enTeteHeader.e_ident[8]);
 
-    printf("Type : %u\n", enTeteHeader.e_type);
+    if (enTeteHeader.e_type == 1) {
+        printf("Type : REL (Fichier de relocalisation)\n");
+    }
+    else {
+        printf("Type : %u\n", enTeteHeader.e_type);
+    }
     switch (enTeteHeader.e_machine) {
         case 0: printf("Machine : No specific instruction set\n");
             break;
@@ -103,17 +109,17 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
         default: printf("Machine : unknown\n");
     }
 
-    printf("version : 0x%x\n", enTeteHeader.e_version);
-    printf("Adresse point entree : 0x%x\n", enTeteHeader.e_entry);
+    printf("Version : 0x%x\n", enTeteHeader.e_version);
+    printf("Adresse du point d'entree : 0x%x\n", enTeteHeader.e_entry);
     printf("Debut des en-tetes de programme : %x (octets dans le fichier)\n", enTeteHeader.e_phoff);
     printf("Debut des en-tetes de section : %u (octets dans le fichier)\n", enTeteHeader.e_shoff);
-    printf("Flags : 0x%x\n", enTeteHeader.e_flags);
+    printf("Fanions : 0x%x, Version5 EABI\n", enTeteHeader.e_flags);
     printf("Taille de cet en-tete : %u (bytes)\n", enTeteHeader.e_ehsize);
-    printf("Taille de l en-tete du programme : %u (bytes)\n", enTeteHeader.e_phentsize);
-    printf("Nombre d en-tete du programme : %u\n", enTeteHeader.e_phnum);
+    printf("Taille de l'en-tete du programme : %u (bytes)\n", enTeteHeader.e_phentsize);
+    printf("Nombre d'en-tete du programme : %u\n", enTeteHeader.e_phnum);
     printf("Taille des en-tetes de section : %u (bytes)\n", enTeteHeader.e_shentsize);
-    printf("Nombre des en-tetes de section : %u\n", enTeteHeader.e_shnum);
-    printf("Table d indexes des chaines d'en-tete de section : %u\n", enTeteHeader.e_shstrndx);
+    printf("Nombre d'en-tetes de section : %u\n", enTeteHeader.e_shnum);
+    printf("Table d'indexes des chaines d'en-tete de section : %u\n", enTeteHeader.e_shstrndx);
 
 }
 
