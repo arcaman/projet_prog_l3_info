@@ -777,43 +777,56 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
         if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
             RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_size / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
             int nbIter = (shdrRel[i].sh_size / sizeof (Elf32_Rel));
-            printf("\n%i\n", nbIter);
             for (j = 0; j < nbIter; j++) {
-                Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
-                
-                int S = symbole.st_value;
-                printf("\n offset : %x stockage : i %i\n", reltable[j].rel.r_offset, S);
-                
-                unsigned char A[4];
-                A[1]=sectionContent[reltable[j].rel.r_offset];
-                A[2]=sectionContent[reltable[j].rel.r_offset+1];
-                A[3]=sectionContent[reltable[j].rel.r_offset+2];
-                A[4]=sectionContent[reltable[j].rel.r_offset+3];
-                int* Aint = (int*) A;
-                printf("%d - %x\n", *Aint, *Aint);
 
+                //printf("\nindex symb : %i\n", ELF32_R_SYM(reltable[j].rel.r_info));
+                Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
+
+                Elf32_Addr S = symbole.st_value;
+
+                unsigned char A[4];
+                A[0] = sectionContent[reltable[j].rel.r_offset];
+                A[1] = sectionContent[(reltable[j].rel.r_offset) + 1];
+                A[2] = sectionContent[(reltable[j].rel.r_offset) + 2];
+                A[3] = sectionContent[(reltable[j].rel.r_offset) + 3];
+                //printf("a :       %02x %02x %02x %02x\n",A[0],A[1],A[2],A[3]);
+                unsigned int AInt = A[0] | ((int) A[1] << 8) | ((int) A[2] << 16) | ((int) A[3] << 24);
+                //printf("\n\n%d - %x\n\n", AInt, AInt);
+
+                Elf32_Word res = 0;
                 switch (ELF32_R_TYPE(reltable[j].rel.r_info)) {
                     case 2:
                         //R_ARM_ABS32
                         // note, T = 0 dans notre cas
                         //(S + A) | T
+                        res = (S + AInt) | 0;
                         break;
                     case 5:
                         //R_ARM_ABS16
                         //S + A
+                        res = S + AInt;
                         break;
                     case 6:
                         //R_ARM_ABS12
                         //S + A
+                        res = S + AInt;
                         break;
                     case 8:
                         //R_ARM_ABS8
                         //S + A
+                        res = S + AInt;
                         break;
                     default:
-                        printf("unknow type\t");
+                        //printf("unknow type\t");
                         break;
                 }
+                //printf("\n\nres : %i\n\n", res);
+
+                sectionContent[reltable[j].rel.r_offset] = (res >> 24) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset+1] = (res >> 16) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset+2] = (res >> 8) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset+3] = res & 0xFF;
+                
             }
         }
     }
