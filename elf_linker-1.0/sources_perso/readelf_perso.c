@@ -589,6 +589,7 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
     free(allSectHdr);
     free(tabIndSectRel);
 }
+
 void affichageRelocations(RelAndInfo** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
 
@@ -770,24 +771,26 @@ u_int32_t convertCharToHexadecimal(char* valueHexaString) {
 unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, int indiceSection, Elf32_Sym* SymbolesCorrects) {
     int i, j;
     Elf32_Ehdr elfHdrRelocalisations;
-    printf("\ndebut\n");
     Elf32_Shdr* shdrRel = createObjectSectionHeaderRelocalisations(elfHdr, shdr, &elfHdrRelocalisations);
     unsigned char* sectionContent = createSectionContent(fichierAnalyse, elfHdr, indiceSection);
     for (i = 0; i < elfHdrRelocalisations.e_shnum; i++) {
         if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
-            printf("\nfor if\n");
-            RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_info / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
-            int nbIter = (shdrRel[i].sh_size/sizeof(Elf32_Rel));
-            printf("\n%i\n",nbIter);
+            RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_size / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
+            int nbIter = (shdrRel[i].sh_size / sizeof (Elf32_Rel));
+            printf("\n%i\n", nbIter);
             for (j = 0; j < nbIter; j++) {
-                printf("\nfor if for\n");
                 Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
-
+                
                 int S = symbole.st_value;
-
-                unsigned char A1 = sectionContent[reltable[j].rel.r_offset];
-                printf("\nstockage : c %32x i %32x\n", A1, S);
-
+                printf("\n offset : %x stockage : i %i\n", reltable[j].rel.r_offset, S);
+                
+                unsigned char A[4];
+                A[1]=sectionContent[reltable[j].rel.r_offset];
+                A[2]=sectionContent[reltable[j].rel.r_offset+1];
+                A[3]=sectionContent[reltable[j].rel.r_offset+2];
+                A[4]=sectionContent[reltable[j].rel.r_offset+3];
+                int* Aint = (int*) A;
+                printf("%d - %x\n", *Aint, *Aint);
 
                 switch (ELF32_R_TYPE(reltable[j].rel.r_info)) {
                     case 2:
@@ -810,10 +813,8 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                     default:
                         printf("unknow type\t");
                         break;
-
                 }
             }
-            printf("\nend for\n");
         }
     }
     return sectionContent;

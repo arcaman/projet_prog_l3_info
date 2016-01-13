@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
                 break;
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
-                printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");
+                printf("Veuillez réessayer avec un entier compris entre 1 et 7.\n\n");
                 retry = 1;
             }
         }
