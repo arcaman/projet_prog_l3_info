@@ -840,4 +840,24 @@ unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr
         tab[i] = replaceSectionContent(fichierAnalyse, shdr, elfHdr, i, SymbolesCorrects);
     }
     return tab;
-}
+
+    Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
+
+        Elf32_Phdr programHeader;
+
+        fseek(fichierAnalyse, elfHdr.e_phoff, SEEK_SET);
+
+        fread(&programHeader, sizeof (Elf32_Phdr), 1, fichierAnalyse);
+
+        if (elfHdr.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+            programHeader.p_type = __bswap_32(programHeader.p_type);
+            programHeader.p_offset = __bswap_32(programHeader.p_offset);
+            programHeader.p_vaddr = __bswap_32(programHeader.p_vaddr);
+            programHeader.p_paddr = __bswap_32(programHeader.p_paddr);
+            programHeader.p_filesz = __bswap_32(programHeader.p_filesz);
+            programHeader.p_memsz = __bswap_32(programHeader.p_memsz);
+            programHeader.p_flags = __bswap_32(programHeader.p_flags);
+            programHeader.p_align = __bswap_32(programHeader.p_align);
+        }
+        return programHeader;
+    }
