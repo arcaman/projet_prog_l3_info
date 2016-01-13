@@ -533,14 +533,14 @@ RelAndLink * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32
 
 RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
     int i;
-    int nb_sect_rel = 0;
+    int nbSectRel = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
-            nb_sect_rel++;
+            nbSectRel++;
         }
     }
     RelAndLink* allRelForSec;
-    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
+    RelAndLink** allSectRel = malloc(nbSectRel * sizeof (RelAndLink*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
@@ -555,44 +555,44 @@ RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32
 
 void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
     int i;
-    int nb_sect_rel = 0;
+    int nbSectRel = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
-            nb_sect_rel++;
+            nbSectRel++;
         }
     }
-    int* tab_ind_sect_rel = malloc(nb_sect_rel * sizeof (int));
-    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
+    int* tabIndSectRel = malloc(nbSectRel * sizeof (int));
+    RelAndLink** allSectRel = malloc(nbSectRel * sizeof (RelAndLink*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
             int nb_ent = allSectHdr[i].sh_size / sizeof (Elf32_Rel);
             RelAndLink* allRelForSec = createAllRelocationBySection(fichierAnalyse, nb_ent, allSectHdr[i], elfHdr);
             allSectRel[l] = allRelForSec;
-            tab_ind_sect_rel[l] = i;
+            tabIndSectRel[l] = i;
             l++;
         }
     }
-    affichageRelocations(allSectRel, tab_ind_sect_rel, nb_sect_rel, fichierAnalyse, elfHdr);
+    affichageRelocations(allSectRel, tabIndSectRel, nbSectRel, fichierAnalyse, elfHdr);
     free(allSectRel);
     free(allSectHdr);
-    free(tab_ind_sect_rel);
+    free(tabIndSectRel);
 }
 
-void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
+void affichageRelocations(RelAndLink** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
 
     char* str = getSectionsStringTable(fichierAnalyse, elfHdr);
     int k, n = 0;
-    for (k = 0; k < nb_sect_rel; k++) {
-        int nb_ent_current = allSect[tab_ind_sect_rel[k]].sh_size / sizeof (Elf32_Rel);
+    for (k = 0; k < nbSectRel; k++) {
+        int nb_ent_current = allSect[tabIndSectRel[k]].sh_size / sizeof (Elf32_Rel);
         printf("Section de relocalisation ");
-        int i = allSect[tab_ind_sect_rel[k]].sh_name;
+        int i = allSect[tabIndSectRel[k]].sh_name;
         while (str[i] != '\0') {
             printf("%c", str[i]);
             i++;
         }
-        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
+        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tabIndSectRel[k]].sh_offset, nb_ent_current);
         printf("Decalage\tInfo\t\tType\n");
         for (n = 0; n < nb_ent_current; n++) {
             printf("%08x\t%08x\t%08x\n", allRel[k][n].rel.r_offset, allRel[k][n].rel.r_info, ELF32_R_TYPE(allRel[k][n].rel.r_info));
