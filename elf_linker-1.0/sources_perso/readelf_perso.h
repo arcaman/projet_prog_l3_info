@@ -35,6 +35,7 @@ Elf32_Shdr* createAllObjectSectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr
 /* ----- DISPLAY CONTENT ----- */
 int getIndexSectionByNameOrIndex(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, char *indiceOrNameSection, int isInt, Elf32_Shdr* allSectHdr);
 unsigned char* createSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, int indiceSectionHeader);
+unsigned char** createAllObjectSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 void displaySectionContent(unsigned char* tableauOctetsSection, FILE* fichierAnalyse, int indiceSectionHeader, Elf32_Ehdr elfHdr);
 
 /* ----- SYMBOL TABLE ----- */

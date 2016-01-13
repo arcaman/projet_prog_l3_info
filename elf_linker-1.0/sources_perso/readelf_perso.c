@@ -350,6 +350,17 @@ unsigned char* createSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, int
     return tabOctets;
 }
 
+unsigned char** createAllObjectSectionContent(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
+
+    int nbSections = elfHdr.e_shnum;
+    int i;
+    unsigned char** tableauAllSectionContent = malloc(sizeof (unsigned char*) * nbSections);
+    for (i = 0; i < nbSections; i++) {
+        tableauAllSectionContent[i] = createSectionContent(fichierAnalyse, elfHdr, i);
+    }
+    return tableauAllSectionContent;
+}
+
 void displaySectionContent(unsigned char* tableauOctetsSection, FILE* fichierAnalyse, int indiceSectionHeader, Elf32_Ehdr elfHdr) {
 
     Elf32_Shdr shdr = createObjectSectionheader(fichierAnalyse, indiceSectionHeader, elfHdr);

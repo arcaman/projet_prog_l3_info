@@ -89,6 +89,12 @@ int main(int argc, char** argv) {
                 Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr, argc, argv);
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
 
+                unsigned char** tableauAllSectionContent = createAllObjectSectionContent(fichierAnalyse, elfHdrSansRelocalisations);
+                int j;
+                for (j = 0; j < elfHdrSansRelocalisations.e_shnum; j++) {
+                    printf("contenu de la section %d :\n", j);
+                    displaySectionContent(tableauAllSectionContent[j], fichierAnalyse, j, elfHdrSansRelocalisations);
+                }
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
