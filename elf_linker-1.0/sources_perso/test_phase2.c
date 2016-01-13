@@ -98,6 +98,13 @@ int main(int argc, char** argv) {
                     displaySectionContent(tableauSectionRelocation[j], fichierAnalyse, j, elfHdrSansRelocalisations);
                 }
 
+
+//                printf("creation du fichier executable a partir de maintenant :\n");
+//                FILE* fichierExecutable = fopen("output", "w");
+//                creationFichierExecutable(fichierExecutable, elfHdrSansRelocalisations, programHdr, objSectHdrSansRelocalisations, tabSymbolesRelocalise, tableauSectionRelocation);
+//                fclose(fichierExecutable);
+//                printf("la creation doit etre effectue");
+
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une autre valeur

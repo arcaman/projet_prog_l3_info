@@ -17,10 +17,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
-typedef struct {
-    Elf32_Rel rel; /* relocation entry */
-    Elf32_Word info; /* link */
-} RelAndInfo;
+
 
 /* ----- ENTETE ELF ----- */
 Elf32_Ehdr createObjectEnteteELF(FILE* fichierAnalyse);
@@ -46,10 +43,10 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 /* ----- RELOCATIONS TABLE ----- */
 
 Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int index, Elf32_Ehdr elfHdr);
-RelAndInfo * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
+Elf32_Rel * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
 void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
-RelAndInfo** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
-void affichageRelocations(RelAndInfo** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
+Elf32_Rel** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
+void affichageRelocations(Elf32_Rel** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
 /* ----- EDITION OBJET SANS RELOCALISATION -----*/
 Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, Elf32_Ehdr elf, Elf32_Ehdr* elfApresReloc);
@@ -73,3 +70,5 @@ unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr
 #endif	/* READELF_PERSO_H */
 
 Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
+
+//void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRelocalisations, Elf32_Phdr programHdr, Elf32_Shdr* objSectHdrSansRelocalisations, Elf32_Sym* tabSymbolesRelocalise, unsigned char** tableauSectionRelocation);
