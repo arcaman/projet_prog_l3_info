@@ -783,65 +783,88 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
         if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
             RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_size / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
             int nbIter = (shdrRel[i].sh_size / sizeof (Elf32_Rel));
-            printf("\n%i\n", nbIter);
             for (j = 0; j < nbIter; j++) {
-                Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
-                
-                int S = symbole.st_value;
-                printf("\n offset : %x stockage : i %i\n", reltable[j].rel.r_offset, S);
-                
-                unsigned char A[4];
-                A[1]=sectionContent[reltable[j].rel.r_offset];
-                A[2]=sectionContent[reltable[j].rel.r_offset+1];
-                A[3]=sectionContent[reltable[j].rel.r_offset+2];
-                A[4]=sectionContent[reltable[j].rel.r_offset+3];
-                int* Aint = (int*) A;
-                printf("%d - %x\n", *Aint, *Aint);
 
+                //printf("\nindex symb : %i\n", ELF32_R_SYM(reltable[j].rel.r_info));
+                Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
+
+                Elf32_Addr S = symbole.st_value;
+
+                unsigned char A[4];
+                A[0] = sectionContent[reltable[j].rel.r_offset];
+                A[1] = sectionContent[(reltable[j].rel.r_offset) + 1];
+                A[2] = sectionContent[(reltable[j].rel.r_offset) + 2];
+                A[3] = sectionContent[(reltable[j].rel.r_offset) + 3];
+                //printf("a :       %02x %02x %02x %02x\n",A[0],A[1],A[2],A[3]);
+                unsigned int AInt = A[0] | ((int) A[1] << 8) | ((int) A[2] << 16) | ((int) A[3] << 24);
+                //printf("\n\n%d - %x\n\n", AInt, AInt);
+
+                Elf32_Word res = 0;
                 switch (ELF32_R_TYPE(reltable[j].rel.r_info)) {
                     case 2:
                         //R_ARM_ABS32
                         // note, T = 0 dans notre cas
                         //(S + A) | T
+                        res = (S + AInt) | 0;
                         break;
                     case 5:
                         //R_ARM_ABS16
                         //S + A
+                        res = S + AInt;
                         break;
                     case 6:
                         //R_ARM_ABS12
                         //S + A
+                        res = S + AInt;
                         break;
                     case 8:
                         //R_ARM_ABS8
                         //S + A
+                        res = S + AInt;
                         break;
                     default:
-                        printf("unknow type\t");
+                        //printf("unknow type\t");
                         break;
                 }
+                //printf("\n\nres : %i\n\n", res);
+
+                sectionContent[reltable[j].rel.r_offset] = (res >> 24) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset + 1] = (res >> 16) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset + 2] = (res >> 8) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset + 3] = res & 0xFF;
+
             }
         }
     }
     return sectionContent;
 }
-/*
-RelAndInfo* reltable = createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr) {
-    int i, k;
 
-    int sectionID = 0; // pas genant car section 0 exiteras toujours et est vide
-    for (k = 0; k < countNbSectionsRelocalisesByAllSectionHeader(elfHdr, shdr); k++) {
-        
-        for (i = 0; i < k; i++) {
-            //get type and section id
-            sectionID = rl[i].link;
-            type = ELF32_R_TYPE(rl[k][i].rel.r_info);
-        }
+unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, Elf32_Sym* SymbolesCorrects) {
+    unsigned char** tab = malloc(elfHdr.e_shnum * sizeof (unsigned char *));
+    int i;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        tab[i] = replaceSectionContent(fichierAnalyse, shdr, elfHdr, i, SymbolesCorrects);
     }
-}*/
-//        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
-//        printf("Decalage\tInfo\t\tType\n");
-//        for (n = 0; n < nb_ent_current; n++) {
-//            printf("%08x\t%08x\t%08x\n", allRel[k][n].rel.r_offset, allRel[k][n].rel.r_info, ELF32_R_TYPE(allRel[k][n].rel.r_info));
-//        }
-//        printf("\n");
+    return tab;
+}
+
+Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
+
+    Elf32_Phdr programHeader;
+
+    fseek(fichierAnalyse, elfHdr.e_phoff, SEEK_SET);
+
+    fread(&programHeader, sizeof (Elf32_Phdr), 1, fichierAnalyse);
+
+    if (elfHdr.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+        programHeader.p_type = __bswap_32(programHeader.p_type);
+        programHeader.p_offset = __bswap_32(programHeader.p_offset);
+        programHeader.p_vaddr = __bswap_32(programHeader.p_vaddr);
+        programHeader.p_paddr = __bswap_32(programHeader.p_paddr);
+        programHeader.p_filesz = __bswap_32(programHeader.p_filesz);
+        programHeader.p_memsz = __bswap_32(programHeader.p_memsz);
+        programHeader.p_flags = __bswap_32(programHeader.p_flags);
+        programHeader.p_align = __bswap_32(programHeader.p_align);
+    }
+    return programHeader;
+}

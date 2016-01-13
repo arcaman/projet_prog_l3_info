@@ -69,5 +69,7 @@ u_int32_t convertCharToHexadecimal(char* valueHexaString);
 /* ----- RELOCALISATION SYMBOLES -----*/
 
 unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, int indiceSection, Elf32_Sym* SymbolesCorrects);
+unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, Elf32_Sym* SymbolesCorrects);
 #endif	/* READELF_PERSO_H */
 
+Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);

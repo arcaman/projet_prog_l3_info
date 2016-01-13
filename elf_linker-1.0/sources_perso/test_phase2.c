@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
     Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
+    Elf32_Phdr programHdr = createObjectProgramHeader(fichierAnalyse, elfHdr);
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
@@ -109,10 +110,30 @@ int main(int argc, char** argv) {
                 printf("\n section modifiee\n");
                 displaySectionContent(tableauOctetsSection2, fichierAnalyse, 5, elfHdr);
                 break;
+
+            case 8:
+                ;
+                Elf32_Shdr* objSectHdrSansisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
+
+                displaySectionHeader(fichierAnalyse, elfHdrSansRelocalisations, objSectHdrSansisations);
+                int k = 0;
+                Elf32_Sym* tabSymb = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaison, elfHdr, allSectHdr, argc, argv);
+                unsigned char** tabAllSectionContent = createAllObjectSectionContent(fichierAnalyse, elfHdrSansRelocalisations);
+                unsigned char** tabModifie = replaceAllSectionsContent(fichierAnalyse, allSectHdr, elfHdr, tabSymb);
+                for (k = 0; k < elfHdrSansRelocalisations.e_shnum; k++) {
+                    
+                    printf("contenu de la section %d :\n\n", k);
+                    printf("version originale\n");
+                    displaySectionContent(tabAllSectionContent[k], fichierAnalyse, k, elfHdrSansRelocalisations);
+                    printf("version modifiee\n");
+                    displaySectionContent(tabModifie[k], fichierAnalyse, k, elfHdrSansRelocalisations);
+                    printf("\n");
+                }
+                break;
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
                 printf("Veuillez réessayer avec un entier compris entre 1 et 7.\n\n");
-                retry = 1;
+                retry = 0;
             }
         }
     }
