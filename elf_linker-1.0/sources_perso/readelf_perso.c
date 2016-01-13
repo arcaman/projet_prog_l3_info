@@ -52,7 +52,7 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
     }
 
     printf("\tVersion : %u (current)\n", enTeteHeader.e_ident[6]);
-    
+
     switch (enTeteHeader.e_ident[7]) {
         case 0: printf("\tOS/ABI : UNIX - System V\n");
             break;
@@ -81,8 +81,7 @@ void afficheTableEnTete(Elf32_Ehdr enTeteHeader) {
 
     if (enTeteHeader.e_type == 1) {
         printf("Type : REL (Fichier de relocalisation)\n");
-    }
-    else {
+    } else {
         printf("Type : %u\n", enTeteHeader.e_type);
     }
     switch (enTeteHeader.e_machine) {
@@ -793,8 +792,8 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                 Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].r_info)];
 
                 Elf32_Addr S = symbole.st_value;
-                printf("val1... offset = %i\n",reltable[j].r_offset);
-                
+                printf("val1... offset = %i\n", reltable[j].r_offset);
+
                 unsigned char A[4];
                 A[0] = sectionContent[reltable[j].r_offset];
                 A[1] = sectionContent[(reltable[j].r_offset) + 1];
@@ -888,23 +887,62 @@ Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
     return programHeader;
 }
 
-//void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRelocalisations, Elf32_Phdr programHdr, Elf32_Shdr* objSectHdrSansRelocalisations, Elf32_Sym* tabSymbolesRelocalise, unsigned char** tableauSectionRelocation) {
-//
-//    fwrite(&elfHdrSansRelocalisations, sizeof (Elf32_Ehdr), 1, fichierExecutable);
-//    //fwrite(&programHdr, sizeof (Elf32_Phdr), 1, fichierExecutable);
-//    
-//    int i,j;
-//    for(i = 0; i < elfHdrSansRelocalisations.e_shnum; i++) {
-//        fwrite(&tableauSectionRelocation[i], sizeof(unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
-//        
-//    }
-//    for(j=0; j < elfHdrSansRelocalisations.e_shnum; j++) {
-//        fwrite(&objSectHdrSansRelocalisations[i], sizeof(Elf32_Shdr), 1, fichierExecutable);
-//    }
-//    
-//    while(i < elfHdrSansRelocalisations.e_shnum) {
-//        fwrite(&tableauSectionRelocation[i], sizeof(unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
-//        i++;
-//    }
-//    
-//}
+void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRelocalisations, Elf32_Phdr programHdr, Elf32_Shdr* objSectHdrSansRelocalisations, Elf32_Sym* tabSymbolesRelocalise, unsigned char** tableauSectionRelocation) {
+
+    if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+        elfHdrSansRelocalisations.e_type = __bswap_16(elfHdrSansRelocalisations.e_type);
+        elfHdrSansRelocalisations.e_machine = __bswap_16(elfHdrSansRelocalisations.e_machine);
+        elfHdrSansRelocalisations.e_version = __bswap_32(elfHdrSansRelocalisations.e_version);
+        elfHdrSansRelocalisations.e_entry = __bswap_32(elfHdrSansRelocalisations.e_entry);
+        elfHdrSansRelocalisations.e_phoff = __bswap_32(elfHdrSansRelocalisations.e_phoff);
+        elfHdrSansRelocalisations.e_shoff = __bswap_32(elfHdrSansRelocalisations.e_shoff);
+        elfHdrSansRelocalisations.e_flags = __bswap_32(elfHdrSansRelocalisations.e_flags);
+        elfHdrSansRelocalisations.e_ehsize = __bswap_16(elfHdrSansRelocalisations.e_ehsize);
+        elfHdrSansRelocalisations.e_phentsize = __bswap_16(elfHdrSansRelocalisations.e_phentsize);
+        elfHdrSansRelocalisations.e_phnum = __bswap_16(elfHdrSansRelocalisations.e_phnum);
+        elfHdrSansRelocalisations.e_shentsize = __bswap_16(elfHdrSansRelocalisations.e_shentsize);
+        elfHdrSansRelocalisations.e_shnum = __bswap_16(elfHdrSansRelocalisations.e_shnum);
+        elfHdrSansRelocalisations.e_shstrndx = __bswap_16(elfHdrSansRelocalisations.e_shstrndx);
+    }
+
+    fwrite(&elfHdrSansRelocalisations, sizeof (Elf32_Ehdr), 1, fichierExecutable);
+    fwrite(&programHdr, sizeof (Elf32_Phdr), 1, fichierExecutable);
+
+    if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) {
+
+        elfHdrSansRelocalisations.e_shnum = __bswap_16(elfHdrSansRelocalisations.e_shnum);
+
+    }
+
+    int i, j;
+    for (i = 0; i < elfHdrSansRelocalisations.e_shnum; i++) {
+        printf("%d\n", i);
+        fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
+
+    }
+    for (j = 0; j < elfHdrSansRelocalisations.e_shnum; j++) {
+        printf("%d\n", j);
+        if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+            objSectHdrSansRelocalisations[j].sh_name = __bswap_32(objSectHdrSansRelocalisations[j].sh_name);
+            objSectHdrSansRelocalisations[j].sh_type = __bswap_32(objSectHdrSansRelocalisations[j].sh_type);
+            objSectHdrSansRelocalisations[j].sh_flags = __bswap_32(objSectHdrSansRelocalisations[j].sh_flags);
+            objSectHdrSansRelocalisations[j].sh_addr = __bswap_32(objSectHdrSansRelocalisations[j].sh_addr);
+            objSectHdrSansRelocalisations[j].sh_offset = __bswap_32(objSectHdrSansRelocalisations[j].sh_offset);
+            objSectHdrSansRelocalisations[j].sh_size = __bswap_32(objSectHdrSansRelocalisations[j].sh_size);
+            objSectHdrSansRelocalisations[j].sh_link = __bswap_32(objSectHdrSansRelocalisations[j].sh_link);
+            objSectHdrSansRelocalisations[j].sh_info = __bswap_32(objSectHdrSansRelocalisations[j].sh_info);
+            objSectHdrSansRelocalisations[j].sh_addralign = __bswap_32(objSectHdrSansRelocalisations[j].sh_addralign);
+            objSectHdrSansRelocalisations[j].sh_entsize = __bswap_32(objSectHdrSansRelocalisations[j].sh_entsize);
+        }
+
+        fwrite(&objSectHdrSansRelocalisations[j], sizeof (Elf32_Shdr), 1, fichierExecutable);
+    }
+
+    while (i < elfHdrSansRelocalisations.e_shnum) {
+        fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
+        i++;
+    }
+
+
+
+}
