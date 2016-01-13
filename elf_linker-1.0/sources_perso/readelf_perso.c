@@ -823,32 +823,21 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                 //printf("\n\nres : %i\n\n", res);
 
                 sectionContent[reltable[j].rel.r_offset] = (res >> 24) & 0xFF;
-                sectionContent[reltable[j].rel.r_offset+1] = (res >> 16) & 0xFF;
-                sectionContent[reltable[j].rel.r_offset+2] = (res >> 8) & 0xFF;
-                sectionContent[reltable[j].rel.r_offset+3] = res & 0xFF;
-                
+                sectionContent[reltable[j].rel.r_offset + 1] = (res >> 16) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset + 2] = (res >> 8) & 0xFF;
+                sectionContent[reltable[j].rel.r_offset + 3] = res & 0xFF;
+
             }
         }
     }
     return sectionContent;
 }
-/*
-RelAndInfo* reltable = createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr) {
-    int i, k;
 
-    int sectionID = 0; // pas genant car section 0 exiteras toujours et est vide
-    for (k = 0; k < countNbSectionsRelocalisesByAllSectionHeader(elfHdr, shdr); k++) {
-        
-        for (i = 0; i < k; i++) {
-            //get type and section id
-            sectionID = rl[i].link;
-            type = ELF32_R_TYPE(rl[k][i].rel.r_info);
-        }
+unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, Elf32_Sym* SymbolesCorrects) {
+    unsigned char** tab = malloc(elfHdr.e_shnum * sizeof (unsigned char *));
+    int i;
+    for (i = 0; i < elfHdr.e_shnum; i++) {
+        tab[i] = replaceSectionContent(fichierAnalyse, shdr, elfHdr, i, SymbolesCorrects);
     }
-}*/
-//        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
-//        printf("Decalage\tInfo\t\tType\n");
-//        for (n = 0; n < nb_ent_current; n++) {
-//            printf("%08x\t%08x\t%08x\n", allRel[k][n].rel.r_offset, allRel[k][n].rel.r_info, ELF32_R_TYPE(allRel[k][n].rel.r_info));
-//        }
-//        printf("\n");
+    return tab;
+}
