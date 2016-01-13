@@ -440,7 +440,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 
     int k = symbtab.sh_size / sizeof (Elf32_Sym);
 
-    printf("Num\tNom\tVal\tTail\tNdx\tLien\tType\t\tVis\n\n");
+    printf("Num\tNom\tVal\tTail\t\tNdx\tLien\tType\t\tVis\n\n");
 
     for (i = 0; i < k; i++) {
         printf("%i\t", i);
@@ -521,17 +521,17 @@ Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int ind
     return rel;
 }
 
-RelAndLink * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr) {
+RelAndInfo * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr) {
     int i;
-    RelAndLink* tab = malloc(nbent * sizeof (RelAndLink));
+    RelAndInfo* tab = malloc(nbent * sizeof (RelAndInfo));
     for (i = 0; i < nbent; i++) {
         tab[i].rel = createObjectRelocations(fichierAnalyse, sect, i, elfHdr);
-        tab[i].link = sect.sh_link;
+        tab[i].info = sect.sh_info;
     }
     return tab;
 }
 
-RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
+RelAndInfo** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr) {
     int i;
     int nb_sect_rel = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
@@ -539,8 +539,8 @@ RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32
             nb_sect_rel++;
         }
     }
-    RelAndLink* allRelForSec;
-    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
+    RelAndInfo* allRelForSec;
+    RelAndInfo** allSectRel = malloc(nb_sect_rel * sizeof (RelAndInfo*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
@@ -562,12 +562,12 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
         }
     }
     int* tab_ind_sect_rel = malloc(nb_sect_rel * sizeof (int));
-    RelAndLink** allSectRel = malloc(nb_sect_rel * sizeof (RelAndLink*));
+    RelAndInfo** allSectRel = malloc(nb_sect_rel * sizeof (RelAndInfo*));
     int l = 0;
     for (i = 0; i < elfHdr.e_shnum; i++) {
         if (allSectHdr[i].sh_type == SHT_REL) {
             int nb_ent = allSectHdr[i].sh_size / sizeof (Elf32_Rel);
-            RelAndLink* allRelForSec = createAllRelocationBySection(fichierAnalyse, nb_ent, allSectHdr[i], elfHdr);
+            RelAndInfo* allRelForSec = createAllRelocationBySection(fichierAnalyse, nb_ent, allSectHdr[i], elfHdr);
             allSectRel[l] = allRelForSec;
             tab_ind_sect_rel[l] = i;
             l++;
@@ -579,7 +579,7 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
     free(tab_ind_sect_rel);
 }
 
-void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
+void affichageRelocations(RelAndInfo** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
     Elf32_Shdr* allSect = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
 
     char* str = getSectionsStringTable(fichierAnalyse, elfHdr);
@@ -685,13 +685,15 @@ int countNbSectionsRelocalisesByAllSectionHeader(Elf32_Ehdr elfHdr, Elf32_Shdr* 
     return indiceNbCasesTabRelocalisations;
 }
 
+/* ----- RENOMAGE SYMBOLES -----*/
+
 int* createTableComparaisonSymbolesApresRelocation(Elf32_Ehdr elfHdr, Elf32_Shdr* allSectHdr) {
     int nbSections = elfHdr.e_shnum;
     int indiceSuppressionSection = 0;
     int i;
     int* tabComparaisonSymboles = malloc(sizeof (int)*nbSections);
     for (i = 0; i < nbSections; i++) {
-        printf("tableau indices : %i\n", i);
+        //printf("tableau indices : %i\n", i);
         if (allSectHdr[i].sh_type == SHT_REL) {
             indiceSuppressionSection++;
         }
@@ -748,3 +750,81 @@ u_int32_t convertCharToHexadecimal(char* valueHexaString) {
     }
     return valeurHexadecimal;
 }
+
+
+
+/* ----- RELOCALISATION SYMBOLES -----*/
+
+//note : indice section AVANT suppression des reltables
+
+unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, int indiceSection, Elf32_Sym* SymbolesCorrects) {
+    int i, j;
+    Elf32_Ehdr elfHdrRelocalisations;
+    printf("\ndebut\n");
+    Elf32_Shdr* shdrRel = createObjectSectionHeaderRelocalisations(elfHdr, shdr, &elfHdrRelocalisations);
+    unsigned char* sectionContent = createSectionContent(fichierAnalyse, elfHdr, indiceSection);
+    for (i = 0; i < elfHdrRelocalisations.e_shnum; i++) {
+        if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
+            printf("\nfor if\n");
+            RelAndInfo* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_info / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
+            int nbIter = (shdrRel[i].sh_size/sizeof(Elf32_Rel));
+            printf("\n%i\n",nbIter);
+            for (j = 0; j < nbIter; j++) {
+                printf("\nfor if for\n");
+                Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].rel.r_info)];
+
+                int S = symbole.st_value;
+
+                unsigned char A1 = sectionContent[reltable[j].rel.r_offset];
+                printf("\nstockage : c %32x i %32x\n", A1, S);
+
+
+                switch (ELF32_R_TYPE(reltable[j].rel.r_info)) {
+                    case 2:
+                        //R_ARM_ABS32
+                        // note, T = 0 dans notre cas
+                        //(S + A) | T
+                        break;
+                    case 5:
+                        //R_ARM_ABS16
+                        //S + A
+                        break;
+                    case 6:
+                        //R_ARM_ABS12
+                        //S + A
+                        break;
+                    case 8:
+                        //R_ARM_ABS8
+                        //S + A
+                        break;
+                    default:
+                        printf("unknow type\t");
+                        break;
+
+                }
+            }
+            printf("\nend for\n");
+        }
+    }
+    return sectionContent;
+}
+/*
+RelAndInfo* reltable = createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr) {
+    int i, k;
+
+    int sectionID = 0; // pas genant car section 0 exiteras toujours et est vide
+    for (k = 0; k < countNbSectionsRelocalisesByAllSectionHeader(elfHdr, shdr); k++) {
+        
+        for (i = 0; i < k; i++) {
+            //get type and section id
+            sectionID = rl[i].link;
+            type = ELF32_R_TYPE(rl[k][i].rel.r_info);
+        }
+    }
+}*/
+//        printf(" a l adresse de decalage 0x%x contient %d entrees:\n", allSect[tab_ind_sect_rel[k]].sh_offset, nb_ent_current);
+//        printf("Decalage\tInfo\t\tType\n");
+//        for (n = 0; n < nb_ent_current; n++) {
+//            printf("%08x\t%08x\t%08x\n", allRel[k][n].rel.r_offset, allRel[k][n].rel.r_info, ELF32_R_TYPE(allRel[k][n].rel.r_info));
+//        }
+//        printf("\n");

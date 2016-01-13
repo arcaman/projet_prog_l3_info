@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
     while (retry) {
         printf("Entrez le numero correspondant aux informations a afficher pour %s\n", nameFile);
-        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n\n");
+        printf("1 - Entete\n2 - Section header\n3 - Display Content\n4 - Symbole table\n5 - Relocations table\n6 - Generation sections\n7 - modification sections\n\n");
         int sel = 0;
         scanf("%d", &sel);
         retry = 0;
@@ -90,7 +90,19 @@ int main(int argc, char** argv) {
                 afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
 
                 break;
-
+            case 7:
+                ;
+                printf("\n section non modifiee\n");
+                unsigned char* tableauOctetsSection = createSectionContent(fichierAnalyse, elfHdr, 5);
+                displaySectionContent(tableauOctetsSection, fichierAnalyse, 5, elfHdr);
+                printf("\n table symboles modifiée\n");
+                int* tabComparaison = createTableComparaisonSymbolesApresRelocation(elfHdr, allSectHdr);
+                Elf32_Sym* tabSymboles = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaison, elfHdr, allSectHdr, argc, argv);
+                afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymboles);
+                unsigned char* tableauOctetsSection2 = replaceSectionContent(fichierAnalyse, allSectHdr, elfHdr, 5, tabSymboles);
+                printf("\n section modifiee\n");
+                displaySectionContent(tableauOctetsSection2, fichierAnalyse, 5, elfHdr);
+                break;
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
             {
                 printf("Veuillez réessayer avec un entier compris entre 1 et 6.\n\n");

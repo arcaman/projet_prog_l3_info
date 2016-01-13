@@ -19,8 +19,8 @@
 
 typedef struct {
     Elf32_Rel rel; /* relocation entry */
-    Elf32_Word link; /* link */
-} RelAndLink;
+    Elf32_Word info; /* link */
+} RelAndInfo;
 
 /* ----- ENTETE ELF ----- */
 Elf32_Ehdr createObjectEnteteELF(FILE* fichierAnalyse);
@@ -45,10 +45,10 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 /* ----- RELOCATIONS TABLE ----- */
 
 Elf32_Rel createObjectRelocations(FILE* fichierAnalyse, Elf32_Shdr sect, int index, Elf32_Ehdr elfHdr);
-RelAndLink * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
+RelAndInfo * createAllRelocationBySection(FILE* fichierAnalyse, int nbent, Elf32_Shdr sect, Elf32_Ehdr elfHdr);
 void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
-RelAndLink** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
-void affichageRelocations(RelAndLink** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
+RelAndInfo** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSectHdr);
+void affichageRelocations(RelAndInfo** allRel, int* tab_ind_sect_rel, int nb_sect_rel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
 
 /* ----- EDITION OBJET SANS RELOCALISATION -----*/
 Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, Elf32_Ehdr elf, Elf32_Ehdr* elfApresReloc);
@@ -64,5 +64,9 @@ int* createTableComparaisonSymbolesApresRelocation(Elf32_Ehdr elfHdr, Elf32_Shdr
 Elf32_Sym* creationTableDesSymbolesCorrecte(FILE* fichierAnalyse, Elf32_Sym* allObjectSymbol, int* tabComparaisonSymboles, Elf32_Ehdr elfHdr, Elf32_Shdr* sectiontab, int argc, char** argv);
 
 u_int32_t convertCharToHexadecimal(char* valueHexaString);
+
+/* ----- RELOCALISATION SYMBOLES -----*/
+
+unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, int indiceSection, Elf32_Sym* SymbolesCorrects);
 #endif	/* READELF_PERSO_H */
 
