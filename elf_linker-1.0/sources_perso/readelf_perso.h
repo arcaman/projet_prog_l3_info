@@ -71,3 +71,4 @@ u_int32_t convertCharToHexadecimal(char* valueHexaString);
 unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, Elf32_Ehdr elfHdr, int indiceSection, Elf32_Sym* SymbolesCorrects);
 #endif	/* READELF_PERSO_H */
 
+Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr);
