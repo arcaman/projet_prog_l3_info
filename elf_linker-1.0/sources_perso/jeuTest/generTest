@@ -3,9 +3,8 @@ cd ficTest
 let "nberr = 0"
 for fic in $(ls)
 do
-#	../../phase2 blablabla $fic temp1
+	../../phase2 temp1 $fic
 	arm-eabi-gcc -o temp2 $fic
-	arm-eabi-gcc -o temp1 $fic
 	if [ ! -z "$(diff temp1 temp2)" ]
 	then
 		let "nberr = nberr + 1"
