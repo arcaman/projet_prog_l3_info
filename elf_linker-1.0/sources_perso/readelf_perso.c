@@ -775,21 +775,16 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
     Elf32_Ehdr elfHdrRelocalisations;
     Elf32_Shdr* shdrRel = createObjectSectionHeaderRelocalisations(elfHdr, shdr, &elfHdrRelocalisations);
     unsigned char* sectionContent = createSectionContent(fichierAnalyse, elfHdr, indiceSection);
-    displaySectionContent(sectionContent, fichierAnalyse, indiceSection, elfHdr);
-    printf("\n");
     for (i = 0; i < elfHdrRelocalisations.e_shnum; i++) {
         if (shdrRel[i].sh_info == indiceSection) { //la table Rel influe bien sur la section que nous allons modifier
-            printf("section %i", indiceSection);
             Elf32_Rel* reltable = createAllRelocationBySection(fichierAnalyse, shdrRel[i].sh_size / sizeof (Elf32_Rel), shdrRel[i], elfHdr);
             int nbIter = (shdrRel[i].sh_size / sizeof (Elf32_Rel));
-            printf(" iterations a faire : %i\n", nbIter);
             for (j = 0; j < nbIter; j++) {
 
                 //printf("\nindex symb : %i\n", ELF32_R_SYM(reltable[j].r_info));
                 Elf32_Sym symbole = SymbolesCorrects[ELF32_R_SYM(reltable[j].r_info)];
 
                 Elf32_Addr S = symbole.st_value;
-                printf("val1... offset = %i\n", reltable[j].r_offset);
 
                 unsigned char A[4];
                 A[0] = sectionContent[reltable[j].r_offset];
@@ -807,7 +802,6 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                         //R_ARM_ABS32
                         // note, T = 0 dans notre cas
                         //(S + A) | T
-                        printf("cas 02 ...");
                         res = (S + AInt) | 0;
                         break;
                     case 5:
@@ -828,13 +822,11 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                     case 28:
                         //R_ARM_CALL
                         //( (S + A) | T) – P
-                        printf("cas 28 ...");
                         res = ((S + AInt) | 0) - reltable[j].r_offset;
                         break;
                     case 29:
                         //R_ARM_JUMP24
                         //( (S + A) | T) – P
-                        printf("cas 29 ...");
                         res = ((S + AInt) | 0) - reltable[j].r_offset;
                         break;
                     default:
@@ -847,7 +839,6 @@ unsigned char * replaceSectionContent(FILE* fichierAnalyse, Elf32_Shdr* shdr, El
                 sectionContent[reltable[j].r_offset + 1] = (res >> 16) & 0xFF;
                 sectionContent[reltable[j].r_offset + 2] = (res >> 8) & 0xFF;
                 sectionContent[reltable[j].r_offset + 3] = res & 0xFF;
-                printf(" reussi\n");
             }
         }
     }
@@ -864,82 +855,79 @@ unsigned char** replaceAllSectionsContent(FILE* fichierAnalyse, Elf32_Shdr* shdr
 }
 
 Elf32_Phdr createObjectProgramHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
-
     Elf32_Phdr programHeader;
-
     fseek(fichierAnalyse, elfHdr.e_phoff, SEEK_SET);
-
-    fread(&programHeader, sizeof (Elf32_Phdr), 1, fichierAnalyse);
-
-    if (elfHdr.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
-        programHeader.p_type = __bswap_32(programHeader.p_type);
-        programHeader.p_offset = __bswap_32(programHeader.p_offset);
-        programHeader.p_vaddr = __bswap_32(programHeader.p_vaddr);
-        programHeader.p_paddr = __bswap_32(programHeader.p_paddr);
-        programHeader.p_filesz = __bswap_32(programHeader.p_filesz);
-        programHeader.p_memsz = __bswap_32(programHeader.p_memsz);
-        programHeader.p_flags = __bswap_32(programHeader.p_flags);
-        programHeader.p_align = __bswap_32(programHeader.p_align);
-    }
+    fread(&programHeader, sizeof (Elf32_Phdr) * elfHdr.e_phnum, 1, fichierAnalyse);
     return programHeader;
 }
 
 void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRelocalisations, Elf32_Phdr programHdr, Elf32_Shdr* objSectHdrSansRelocalisations, Elf32_Sym* tabSymbolesRelocalise, unsigned char** tableauSectionRelocation) {
-
-    if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
-        elfHdrSansRelocalisations.e_type = __bswap_16(elfHdrSansRelocalisations.e_type);
-        elfHdrSansRelocalisations.e_machine = __bswap_16(elfHdrSansRelocalisations.e_machine);
-        elfHdrSansRelocalisations.e_version = __bswap_32(elfHdrSansRelocalisations.e_version);
-        elfHdrSansRelocalisations.e_entry = __bswap_32(elfHdrSansRelocalisations.e_entry);
-        elfHdrSansRelocalisations.e_phoff = __bswap_32(elfHdrSansRelocalisations.e_phoff);
-        elfHdrSansRelocalisations.e_shoff = __bswap_32(elfHdrSansRelocalisations.e_shoff);
-        elfHdrSansRelocalisations.e_flags = __bswap_32(elfHdrSansRelocalisations.e_flags);
-        elfHdrSansRelocalisations.e_ehsize = __bswap_16(elfHdrSansRelocalisations.e_ehsize);
-        elfHdrSansRelocalisations.e_phentsize = __bswap_16(elfHdrSansRelocalisations.e_phentsize);
-        elfHdrSansRelocalisations.e_phnum = __bswap_16(elfHdrSansRelocalisations.e_phnum);
-        elfHdrSansRelocalisations.e_shentsize = __bswap_16(elfHdrSansRelocalisations.e_shentsize);
-        elfHdrSansRelocalisations.e_shnum = __bswap_16(elfHdrSansRelocalisations.e_shnum);
-        elfHdrSansRelocalisations.e_shstrndx = __bswap_16(elfHdrSansRelocalisations.e_shstrndx);
+    unsigned char empty = 0;
+    Elf32_Ehdr elfHdrCopy = elfHdrSansRelocalisations;
+    if (elfHdrCopy.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
+        elfHdrCopy.e_type = __bswap_16(elfHdrCopy.e_type);
+        elfHdrCopy.e_machine = __bswap_16(elfHdrCopy.e_machine);
+        elfHdrCopy.e_version = __bswap_32(elfHdrCopy.e_version);
+        elfHdrCopy.e_entry = __bswap_32(elfHdrCopy.e_entry);
+        elfHdrCopy.e_phoff = __bswap_32(elfHdrCopy.e_phoff);
+        elfHdrCopy.e_shoff = __bswap_32(elfHdrCopy.e_shoff);
+        elfHdrCopy.e_flags = __bswap_32(elfHdrCopy.e_flags);
+        elfHdrCopy.e_ehsize = __bswap_16(elfHdrCopy.e_ehsize);
+        elfHdrCopy.e_phentsize = __bswap_16(elfHdrCopy.e_phentsize);
+        elfHdrCopy.e_phnum = __bswap_16(elfHdrCopy.e_phnum);
+        elfHdrCopy.e_shentsize = __bswap_16(elfHdrCopy.e_shentsize);
+        elfHdrCopy.e_shnum = __bswap_16(elfHdrCopy.e_shnum);
+        elfHdrCopy.e_shstrndx = __bswap_16(elfHdrCopy.e_shstrndx);
     }
 
-    fwrite(&elfHdrSansRelocalisations, sizeof (Elf32_Ehdr), 1, fichierExecutable);
-    fwrite(&programHdr, sizeof (Elf32_Phdr), 1, fichierExecutable);
-
-    if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) {
-
-        elfHdrSansRelocalisations.e_shnum = __bswap_16(elfHdrSansRelocalisations.e_shnum);
-
+    fwrite(&elfHdrCopy, sizeof (Elf32_Ehdr), 1, fichierExecutable); //ELF header verifié fonctionnel
+    printf("elfheader reecrit\n");
+    if (elfHdrSansRelocalisations.e_phnum != 0) {
+        fwrite(&programHdr, sizeof (Elf32_Phdr), 1, fichierExecutable); // marche pas s'il n'y a pas de prog header par défaut
+        printf("progheaders reecrits\n");
     }
 
-    int i, j;
+    int i;
+    for (i = 0; i < elfHdrSansRelocalisations.e_shnum; i++) {
+        if (objSectHdrSansRelocalisations[i].sh_addralign > 1) {
+            int j = 0;
+            while (j == 0) {
+                if (ftell(fichierExecutable) % objSectHdrSansRelocalisations[i].sh_addralign != 0) {
+                    fwrite(&empty, sizeof (unsigned char), 1, fichierExecutable);
+                } else {
+                    j=1;
+                }
+            }
+            printf("%li",ftell(fichierExecutable));
+        }
+        if (ftell(fichierExecutable) == objSectHdrSansRelocalisations[i].sh_offset) {
+            fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
+            printf("section %o reecrite\n", i);
+        }
+    }
+
     for (i = 0; i < elfHdrSansRelocalisations.e_shnum; i++) {
         printf("%d\n", i);
-        fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
-
-    }
-    for (j = 0; j < elfHdrSansRelocalisations.e_shnum; j++) {
-        printf("%d\n", j);
         if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
-            objSectHdrSansRelocalisations[j].sh_name = __bswap_32(objSectHdrSansRelocalisations[j].sh_name);
-            objSectHdrSansRelocalisations[j].sh_type = __bswap_32(objSectHdrSansRelocalisations[j].sh_type);
-            objSectHdrSansRelocalisations[j].sh_flags = __bswap_32(objSectHdrSansRelocalisations[j].sh_flags);
-            objSectHdrSansRelocalisations[j].sh_addr = __bswap_32(objSectHdrSansRelocalisations[j].sh_addr);
-            objSectHdrSansRelocalisations[j].sh_offset = __bswap_32(objSectHdrSansRelocalisations[j].sh_offset);
-            objSectHdrSansRelocalisations[j].sh_size = __bswap_32(objSectHdrSansRelocalisations[j].sh_size);
-            objSectHdrSansRelocalisations[j].sh_link = __bswap_32(objSectHdrSansRelocalisations[j].sh_link);
-            objSectHdrSansRelocalisations[j].sh_info = __bswap_32(objSectHdrSansRelocalisations[j].sh_info);
-            objSectHdrSansRelocalisations[j].sh_addralign = __bswap_32(objSectHdrSansRelocalisations[j].sh_addralign);
-            objSectHdrSansRelocalisations[j].sh_entsize = __bswap_32(objSectHdrSansRelocalisations[j].sh_entsize);
+            objSectHdrSansRelocalisations[i].sh_name = __bswap_32(objSectHdrSansRelocalisations[i].sh_name);
+            objSectHdrSansRelocalisations[i].sh_type = __bswap_32(objSectHdrSansRelocalisations[i].sh_type);
+            objSectHdrSansRelocalisations[i].sh_flags = __bswap_32(objSectHdrSansRelocalisations[i].sh_flags);
+            objSectHdrSansRelocalisations[i].sh_addr = __bswap_32(objSectHdrSansRelocalisations[i].sh_addr);
+            objSectHdrSansRelocalisations[i].sh_offset = __bswap_32(objSectHdrSansRelocalisations[i].sh_offset);
+            objSectHdrSansRelocalisations[i].sh_size = __bswap_32(objSectHdrSansRelocalisations[i].sh_size);
+            objSectHdrSansRelocalisations[i].sh_link = __bswap_32(objSectHdrSansRelocalisations[i].sh_link);
+            objSectHdrSansRelocalisations[i].sh_info = __bswap_32(objSectHdrSansRelocalisations[i].sh_info);
+            objSectHdrSansRelocalisations[i].sh_addralign = __bswap_32(objSectHdrSansRelocalisations[i].sh_addralign);
+            objSectHdrSansRelocalisations[i].sh_entsize = __bswap_32(objSectHdrSansRelocalisations[i].sh_entsize);
         }
 
-        fwrite(&objSectHdrSansRelocalisations[j], sizeof (Elf32_Shdr), 1, fichierExecutable);
+        fwrite(&objSectHdrSansRelocalisations[i], sizeof (Elf32_Shdr), 1, fichierExecutable);
     }
 
     while (i < elfHdrSansRelocalisations.e_shnum) {
         fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
         i++;
     }
-
 
 
 }

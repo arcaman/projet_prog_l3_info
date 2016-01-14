@@ -16,12 +16,11 @@ int main(int argc, char** argv) {
     char *nameFile = argv[1];
     
     FILE* fichierAnalyse = fopen(nameFile, "r");
-
     Elf32_Ehdr elfHdr = createObjectEnteteELF(fichierAnalyse);
     Elf32_Shdr* allSectHdr = createAllObjectSectionHeader(fichierAnalyse, elfHdr);
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
+    //l'objet suivant sera errone s'il n'y a pas de prog header dans le fichier, mais c'est gere ailleurs
     Elf32_Phdr programHdr = createObjectProgramHeader(fichierAnalyse, elfHdr);
-
 
     Elf32_Ehdr elfHdrSansRelocalisations;
     Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
