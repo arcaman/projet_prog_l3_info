@@ -590,9 +590,6 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
         }
     }
     affichageRelocations(allSectRel, tabIndSectRel, nbSectRel, fichierAnalyse, elfHdr);
-    free(allSectRel);
-    free(allSectHdr);
-    free(tabIndSectRel);
 }
 
 void affichageRelocations(Elf32_Rel** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
