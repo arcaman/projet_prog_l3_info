@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
     Elf32_Sym* allObjectSymbol = createAllObjectSymbol(fichierAnalyse, elfHdr, allSectHdr);
     //l'objet suivant sera errone s'il n'y a pas de prog header dans le fichier, mais c'est gere ailleurs
     Elf32_Phdr programHdr = createObjectProgramHeader(fichierAnalyse, elfHdr);
+    int nbSecSupprimees = countNbSectionsRelocalisesByAllSectionHeader(elfHdr, allSectHdr);
 
     Elf32_Ehdr elfHdrSansRelocalisations;
     Elf32_Shdr* objSectHdrSansRelocalisations = createObjectSectionHeaderWithoutRelocalisations(allSectHdr, elfHdr, &elfHdrSansRelocalisations);
@@ -33,7 +34,6 @@ int main(int argc, char** argv) {
     Elf32_Sym* tabSymbolesRelocalise = creationTableDesSymbolesCorrecte(fichierAnalyse, allObjectSymbol, tabComparaisonSymboles, elfHdr, allSectHdr, argc, argv);
     afficherTableSymbole(fichierAnalyse, elfHdr, allSectHdr, tabSymbolesRelocalise);
     unsigned char** tableauAllSectionContent = createAllObjectSectionContent(fichierAnalyse, elfHdrSansRelocalisations);
-    printf("original:\n");
     unsigned char** tableauSectionRelocation = replaceAllSectionsContent(fichierAnalyse, allSectHdr, elfHdrSansRelocalisations, tabSymbolesRelocalise);
 
     int j;
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 
     printf("creation du fichier executable a partir de maintenant :\n");
     FILE* fichierExecutable = fopen("sortie_executable", "w");
-    creationFichierExecutable(fichierExecutable, elfHdrSansRelocalisations, programHdr, objSectHdrSansRelocalisations, tabSymbolesRelocalise, tableauSectionRelocation);
+    creationFichierExecutable(fichierExecutable, elfHdrSansRelocalisations, programHdr, objSectHdrSansRelocalisations, tabSymbolesRelocalise, tableauSectionRelocation, nbSecSupprimees);
     fclose(fichierExecutable);
     printf("la creation doit etre effectue");
 
