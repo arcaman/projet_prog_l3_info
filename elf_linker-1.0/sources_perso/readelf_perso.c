@@ -298,6 +298,7 @@ void displaySectionHeader(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* a
         printf("\n");
 
     }
+    free(str);
 }
 
 /* ----- DISPLAY CONTENT ----- */
@@ -333,9 +334,11 @@ int getIndexSectionByNameOrIndex(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, char *
             n++;
         }
         if (checkChaineEgale == 1) {
+            free(str);
             return idx;
         }
     }
+    free(str);
     return -1;
 }
 
@@ -522,6 +525,7 @@ void afficherTableSymbole(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr* s
 
         printf("\n");
     }
+    free(str);
 }
 
 /* ----- RELOCATIONS TABLE ----- */
@@ -563,6 +567,7 @@ Elf32_Rel** createAllRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_
             int nb_ent = allSectHdr[i].sh_size / sizeof (Elf32_Rel);
             allRelForSec = createAllRelocationBySection(fichierAnalyse, nb_ent, allSectHdr[i], elfHdr);
             allSectRel[l] = allRelForSec;
+            free(allRelForSec);
             l++;
         }
     }
@@ -587,9 +592,12 @@ void readRelocations(FILE* fichierAnalyse, Elf32_Ehdr elfHdr, Elf32_Shdr * allSe
             allSectRel[l] = allRelForSec;
             tabIndSectRel[l] = i;
             l++;
+            free(allRelForSec);
         }
     }
     affichageRelocations(allSectRel, tabIndSectRel, nbSectRel, fichierAnalyse, elfHdr);
+    free(tabIndSectRel);
+    free(allSectRel);
 }
 
 void affichageRelocations(Elf32_Rel** allRel, int* tabIndSectRel, int nbSectRel, FILE* fichierAnalyse, Elf32_Ehdr elfHdr) {
@@ -612,6 +620,8 @@ void affichageRelocations(Elf32_Rel** allRel, int* tabIndSectRel, int nbSectRel,
         }
         printf("\n");
     }
+    free(str);
+    free(allSect);
 }
 
 /* ----- EDITION OBJET SANS RELOCALISATION -----*/
@@ -649,6 +659,7 @@ Elf32_Shdr* createObjectSectionHeaderWithoutRelocalisations(Elf32_Shdr* shdr, El
             k++;
         }
     }
+    free(shdrcpy);
     return shdrApresReloc;
 }
 
@@ -751,6 +762,7 @@ Elf32_Sym* creationTableDesSymbolesCorrecte(FILE* fichierAnalyse, Elf32_Sym* all
             free(tableauCaracteres);
         }
     }
+    free(tabComparaisonSymboles);
     return tabSymbolesRelocalise;
 }
 

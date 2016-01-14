@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
         printf("Erreur : saisissez un argument !\n");
         return 1;
     }
-    
+
     char *nameFile = argv[1];
     int retry = 1;
 
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
         //vérification du mode auto ou manuel
         if (argc == 5) {
-            int numero_etape = atoi(argv[4]);   //argument facultatif pour les tests
+            int numero_etape = atoi(argv[4]); //argument facultatif pour les tests
             sel = numero_etape;
             retry = 0;
         } else {
@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
                     int idSection = getIndexSectionByNameOrIndex(fichierAnalyse, elfHdr, indiceOrNameSection, isInt, allSectHdr);
                     unsigned char* tableauOctetsSection = createSectionContent(fichierAnalyse, elfHdr, idSection);
                     displaySectionContent(tableauOctetsSection, fichierAnalyse, idSection, elfHdr);
+                    free(tableauOctetsSection);
                 }
             }
                 break;
@@ -93,7 +94,6 @@ int main(int argc, char** argv) {
             case 6: //Exit the program
                 ;
                 retry = 0;
-                return 0;
                 break;
 
             default: //redemande ce qu'il faut afficher si sel a une autre valeur
@@ -104,6 +104,8 @@ int main(int argc, char** argv) {
     }
 
     fclose(fichierAnalyse);
+    free(allSectHdr);
+    free(allObjectSymbol);
 
     return (EXIT_SUCCESS);
 }
