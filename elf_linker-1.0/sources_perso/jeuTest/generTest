@@ -1,0 +1,17 @@
+#!/bin/bash
+cd ficTest
+let "nberr = 0"
+for fic in $(ls)
+do
+#	../../phase2 blablabla $fic temp1
+	arm-eabi-gcc -o temp2 $fic
+	arm-eabi-gcc -o temp1 $fic
+	if [ ! -z "$(diff temp1 temp2)" ]
+	then
+		let "nberr = nberr + 1"
+		echo $fic
+	fi
+	rm temp1 temp2
+done
+cd ..
+echo "il y a eu $nberr erreurs"
