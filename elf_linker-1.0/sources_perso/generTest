@@ -1,0 +1,15 @@
+#!/bin/bash
+let "nberr = 0"
+for fic in $(ls ../Examples_loader/example1.o)
+do
+	./phase_deux ../Examples_loader/$fic
+	arm-eabi-gcc -o temp2 ../Examples_loader/$fic
+	if [ ! -z "$(diff temp1 sortie_executable)" ]
+	then
+		let "nberr = nberr + 1"
+		echo $fic
+	fi
+	rm temp1 temp2
+done
+cd ..
+echo "il y a eu $nberr erreurs"

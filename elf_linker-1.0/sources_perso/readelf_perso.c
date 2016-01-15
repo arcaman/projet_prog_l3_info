@@ -882,10 +882,10 @@ void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRel
     }
 
     fwrite(&elfHdrCopy, sizeof (Elf32_Ehdr), 1, fichierExecutable); //ELF header verifié fonctionnel
-    printf("elfheader reecrit\n");
+    //printf("elfheader reecrit\n");
     if (elfHdrSansRelocalisations.e_phnum != 0) {
         fwrite(&programHdr, sizeof (Elf32_Phdr), 1, fichierExecutable); // marche pas s'il n'y a pas de prog header par défaut
-        printf("progheaders reecrits\n");
+        //printf("progheaders reecrits\n");
     }
 
     int i;
@@ -900,24 +900,24 @@ void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRel
                     j = 1;
                 }
             }
-            printf("%li\n", ftell(fichierExecutable));
+            //printf("%li\n", ftell(fichierExecutable));
         }
         if (ftell(fichierExecutable) == objSectHdrSansRelocalisations[i].sh_offset) {
-            printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
+            //printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
             for (j = 0; j < objSectHdrSansRelocalisations[i].sh_size; j++) {
                 fwrite(&tableauSectionRelocation[i][j], sizeof (unsigned char), 1, fichierExecutable);
             }
             //fwrite(&tableauSectionRelocation[i], sizeof (unsigned char)*objSectHdrSansRelocalisations[i].sh_size, 1, fichierExecutable);
-            printf("section %i reecrite\n", i);
+            //printf("section %i reecrite\n", i);
         } else {
             //si on arrive ici c'est qu'il s'agit des section APRES les section headers
             //on doit donc penser a supprimmer l'offset des section rel qui ont disparues
             objSectHdrSansRelocalisations[i].sh_offset -= nbSecSupprimees * sizeof (Elf32_Shdr);
             //on les réécriera plus loin, ne pas s'inquieter
-            printf("section %i apres les header, adresse modifiee\n", i);
+            //printf("section %i apres les header, adresse modifiee\n", i);
         }
     }
-    printf("ecriture des headers de section\n");
+    //printf("ecriture des headers de section\n");
     for (i = 0; i < elfHdrSansRelocalisations.e_shnum; i++) {
         if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) { // 5 correspondant à l'octet étant le big ou little
             objSectHdrSansRelocalisations[i].sh_name = __bswap_32(objSectHdrSansRelocalisations[i].sh_name);
@@ -958,11 +958,11 @@ void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRel
                     j = 1;
                 }
             }
-            printf("%li\n", ftell(fichierExecutable));
+            //printf("%li\n", ftell(fichierExecutable));
         }
         if (ftell(fichierExecutable) == objSectHdrSansRelocalisations[i].sh_offset) {
             if (objSectHdrSansRelocalisations[i].sh_type == SHT_SYMTAB) {
-                printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
+                //printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
                 for (j = 0; j < objSectHdrSansRelocalisations[i].sh_size / sizeof (Elf32_Sym); j++) {
                     if (elfHdrSansRelocalisations.e_ident[5] == MODE_BIG_ENDIAN) {// 5 correspondant à l'octet étant le big ou little
                         tabSymbolesRelocalise[j].st_name = __bswap_32(tabSymbolesRelocalise[j].st_name);
@@ -973,13 +973,13 @@ void creationFichierExecutable(FILE* fichierExecutable, Elf32_Ehdr elfHdrSansRel
                     }
                     fwrite(&tabSymbolesRelocalise[j], sizeof (Elf32_Sym), 1, fichierExecutable);
                 }
-                printf("section %i reecrite\n", i);
+                //printf("section %i reecrite\n", i);
             } else {
-                printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
+                //printf("reecriture a l'adresse %li \n", ftell(fichierExecutable));
                 for (j = 0; j < objSectHdrSansRelocalisations[i].sh_size; j++) {
                     fwrite(&tableauSectionRelocation[i][j], sizeof (unsigned char), 1, fichierExecutable);
                 }
-                printf("section %i reecrite\n", i);
+                //printf("section %i reecrite\n", i);
 
             }
         }
